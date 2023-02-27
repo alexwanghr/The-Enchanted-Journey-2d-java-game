@@ -24,21 +24,14 @@ public class GameUtil {
 		return new int[]{32,32};
 	}
 
-	public int getScore(String name)
+	public String getMap(int level)
 	{
-		switch(name)
-		{
-			case("item"):
-				return 100;
-			case("enemy"):
-				return 50;
-		}
-		return 0;
+		return "res/map"+ level +".txt";
 	}
 
-	public String getMap()
+	public String getBg(int level)
 	{
-		return "res/map.txt";
+		return "res/bg"+ level +".png";
 	}
 
 	public String getLine()
@@ -51,14 +44,14 @@ public class GameUtil {
 		return "res/"+ name +".png";
 	}
 
+	public String getItemPath(String name)
+	{
+		return "res/item/"+ name +".png";
+	}
+
 	public String getPlayerPath(int player)
 	{
 		return "res/witch"+player+".png";
-	}
-
-	public String getMapGridPath(int type)
-	{
-		return "res/dirt/"+ "dirt"+type +".png";
 	}
 
 	public String getGrassPath(String type)

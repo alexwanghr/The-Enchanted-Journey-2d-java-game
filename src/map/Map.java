@@ -32,16 +32,16 @@ public class Map {
             case (8):
                 return ObjectTag.skeleton;
             case (9):
-                return ObjectTag.cherry;
+                return ObjectTag.item;
         }
         return ObjectTag.object;
     }
 
-    public  int[][] ReadMap() throws Exception
+    public  int[][] ReadMap(int level) throws Exception
     {
         ArrayList<String> stringList = new ArrayList<String>();
 
-        FileInputStream fis = new FileInputStream(pathutil.getMap());
+        FileInputStream fis = new FileInputStream(pathutil.getMap(level));
         InputStreamReader isr = new InputStreamReader(fis);
         BufferedReader br = new BufferedReader(isr);
 

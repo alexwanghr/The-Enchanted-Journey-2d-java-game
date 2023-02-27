@@ -81,7 +81,7 @@ public class Viewer extends JPanel {
 
 		model.getEnemies().forEach((temp) -> {drawEnemies(temp,g);});
 		model.getBullets().forEach((temp) -> {drawBullet(temp,g);});
-        model.getItems().forEach((temp) -> {drawItemss(temp,g);});
+        model.getItems().forEach((temp) -> {drawItems(temp,g);});
 		model.getGrass().forEach((temp) -> {drawGrass(temp,g);});
 	}
 
@@ -89,7 +89,6 @@ public class Viewer extends JPanel {
 	private void drawEnemies(Enemy enemy,Graphics g) {
 		String texture = enemy.getTexture();
 		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE 
-		File TextureTipToLoad = new File(enemy.getTipTextureLocation());  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			Image myImage = ImageIO.read(TextureToLoad);
 			int x = (int)enemy.getCentre().getX();
@@ -102,6 +101,7 @@ public class Viewer extends JPanel {
 
 			if(enemy.isHasTip())
 			{
+				File TextureTipToLoad = new File(enemy.getTipTextureLocation());
 				myImage = ImageIO.read(TextureTipToLoad);
 				g.drawImage(myImage, x+w,y-h, x+2*w, y, 0,
 						0, w, h, null);
@@ -113,7 +113,7 @@ public class Viewer extends JPanel {
 		}
 	}
 
-    private void drawItemss(Item item, Graphics g) {
+    private void drawItems(Item item, Graphics g) {
 		String texture = item.getTexture();
         File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
         try {
@@ -122,9 +122,7 @@ public class Viewer extends JPanel {
 			int y = (int)item.getCentre().getY();
 			int w = item.getWidth();
 			int h = item.getHeight();
-            int animationNumber = (int)(CurrentAnimationTime%20)/10;
-            g.drawImage(myImage, x,y, x+w, y+h, animationNumber*w,
-                    0, (animationNumber+1)*w, h, null);
+            g.drawImage(myImage, x,y, w, h,null);
 
         } catch (IOException e) {
             // TODO Auto-generated catch block

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import object.*;
@@ -29,7 +31,7 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */ 
 public class Model {
-	
+	 private int level;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private Controller controller = Controller.getInstance();
@@ -46,17 +48,21 @@ public class Model {
 		PlayerTwo = new Player(gameUtil.getPlayerPath(2),new Point3f(20,2800,0));
 		PlayerList.add(PlayerOne);
 		PlayerList.add(PlayerTwo);
-		GetMap();
 		GetLine();
+	}
+
+	public void setLevel(int l) throws Exception {
+		level = l;
+		GetMap(level);
 	}
 	public void GetLine() throws Exception {
 		Lines line = new Lines();
 		line.ReadLine();
 	}
 
-	public void GetMap() throws Exception {
+	public void GetMap(int level) throws Exception {
 		Map mp = new Map();
-		map = mp.ReadMap();
+		map = mp.ReadMap(level);
 
 		Enemy enemy;
 		Item item;
@@ -71,7 +77,7 @@ public class Model {
 					enemy = new Enemy(new Point3f(j*size[0],i*size[1],0), tag);
 					EnemiesList.add(enemy);
 				}
-				else if(tag==ObjectTag.cherry)
+				else if(tag==ObjectTag.item)
 				{
 					item = new Item(new Point3f(j*size[0],i*size[1],0), tag);
 					ItemsList.add(item);
@@ -99,64 +105,45 @@ public class Model {
 		gameLogic();
 	}
 
+	float getDistanceX(GameObject g1, GameObject g2)
+	{
+		return Math.abs(g1.getCentre().getX()- g2.getCentre().getX());
+	}
+
+	float getDistanceY(GameObject g1, GameObject g2)
+	{
+		return Math.abs(g1.getCentre().getY()- g2.getCentre().getY());
+	}
+
 	private boolean isHit(GameObject g1, GameObject g2)
 	{
-		float distanceY = Math.abs(g1.getCentre().getY()- g2.getCentre().getY());
-		float distanceX = Math.abs(g1.getCentre().getX()- g2.getCentre().getX());
-		return distanceX< g1.getWidth() && distanceY< g1.getHeight();
+		return getDistanceX(g1,g2)< g1.getWidth() && getDistanceY(g1,g2)< g1.getHeight();
 	}
 
 	private void gameLogic() {
 		//this is a way to increment across the array list data structure
 		//see if they hit anything 
-		//using enhanced for-loop style as it makes it alot easier both code wise and reading wise too
-		for (Enemy enemy : EnemiesList)
+		//using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
+
+		for (Player player : PlayerList)
 		{
-			for (Bullet bullet : BulletList)
-			{
-				if (isHit(enemy,bullet))
-				{
-					EnemiesList.remove(enemy);
-					BulletList.remove(bullet);
-					if(enemy.isHasTip())
-					{
-						getPlayer(bullet.getBelongId()).changeScore((-1)*gameUtil.getScore("enemy"));
-					}
-					else
-					{
-						getPlayer(bullet.getBelongId()).changeScore(gameUtil.getScore("enemy"));
-					}
-				}
-			}
-			for (Player player : PlayerList)
+			for (Enemy enemy : EnemiesList)
 			{
 				if (isHit(enemy,player))
 				{
-					EnemiesList.remove(enemy);
-					if(enemy.isHasTip())
-					{
-
-					}
-					else
-					{
-						player.changeLife(-1);
-					}
+					PlayerHitEnemy(player,enemy);
 				}
 			}
-		}
 
-		for (GameObject item : ItemsList)
-		{
-			for (Player player : PlayerList)
+			for (Item item : ItemsList)
 			{
 				if (isHit(item,player))
 				{
-					player.changeScore(gameUtil.getScore("item"));
+					player.changeScore(item.getScore());
 					ItemsList.remove(item);
 				}
 			}
 		}
-		
 	}
 
 	private void enemyLogic() {
@@ -172,20 +159,53 @@ public class Model {
 		}
 	}
 
+
+	List<Enemy> enemies  = new ArrayList<>();
 	private void bulletLogic() {
 		// TODO Auto-generated method stub
-		// move bullets 
-	  
-		for (GameObject temp : BulletList) 
+		for (Bullet bullet : BulletList)
 		{
-		    //check to move them
-			temp.getCentre().ApplyVector(new Vector3f(1,0,0));
-			//see if they hit anything
-			//see if they get to the top of the screen ( remember 0 is the top 
-			if (temp.getCentre().getX()> gameUtil.getWindowWidth())
+			bullet.getCentre().ApplyVector(new Vector3f(1,0,0));
+			enemies = EnemiesList.stream()
+					.filter(enemy -> getDistanceY(enemy,bullet)< enemy.getHeight())
+					.toList();
+			for (Enemy enemy : enemies)
 			{
-			 	BulletList.remove(temp);
+				if (isHit(enemy,bullet))
+				{
+					EnemiesList.remove(enemy);
+					BulletList.remove(bullet);
+				}
+			}
+
+			if (bullet.getCentre().getX()> gameUtil.getWindowWidth())
+			{
+			 	BulletList.remove(bullet);
 			} 
+		}
+	}
+
+	void BulletHitEnemy(Bullet bullet, Enemy enemy)
+	{
+		if(enemy.isHasTip())
+		{
+			getPlayer(bullet.getBelongId()).changeScore((-1)*enemy.getScore());
+		}
+		else
+		{
+			getPlayer(bullet.getBelongId()).changeScore(enemy.getScore());
+		}
+	}
+
+	void PlayerHitEnemy(Player player, Enemy enemy)
+	{
+		if(enemy.isHasTip())
+		{
+
+		}
+		else
+		{
+			player.changeLife(-1);
 		}
 	}
 
@@ -207,10 +227,6 @@ public class Model {
 		// smoother animation is possible if we make a target position
 		// done but may try to change things for students
 		//check for movement and if you fired a bullet
-
-//		if(Controller.getInstance().isKeyAPressed()){
-//			PlayerOne.getCentre().ApplyVector( new Vector3f(-2,0,0));
-//		}
 		
 		if(Controller.getInstance().isKeyDPressed())
 		{
@@ -236,10 +252,6 @@ public class Model {
 			CreateBullet(2);
 			Controller.getInstance().setKeyEnterPressed(false);
 		}
-
-//		if(Controller.getInstance().isKeyLeftPressed()){
-//			PlayerTwo.getCentre().ApplyVector( new Vector3f(-2,0,0));
-//		}
 
 		if(Controller.getInstance().isKeyRightPressed())
 		{
@@ -286,8 +298,8 @@ public class Model {
 	}
 
 	public int[] getScore() {
-		int score1 = PlayerOne.getScore();
-		int score2 = PlayerTwo.getScore();
+		int score1 = PlayerOne.getPlayerScore();
+		int score2 = PlayerTwo.getPlayerScore();
 		return new int[]{score1,score2};
 	}
  

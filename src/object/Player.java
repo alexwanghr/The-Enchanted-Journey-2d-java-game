@@ -6,7 +6,7 @@ import util.Point3f;
 
 public class Player extends GameObject {
 
-    private int score=0;
+    private int playerScore =0;
 
     public Player(String textureLocation, Point3f centre) {
         hasTextured=true;
@@ -20,7 +20,7 @@ public class Player extends GameObject {
 
     public void changeScore(int count)
     {
-        score+=count;
+        playerScore +=count;
     }
 
     public void changeLife(int count)
@@ -28,9 +28,9 @@ public class Player extends GameObject {
         life+=count;
     }
 
-    public int getScore()
+    public int getPlayerScore()
     {
-        return score;
+        return playerScore;
     }
 
     @Override

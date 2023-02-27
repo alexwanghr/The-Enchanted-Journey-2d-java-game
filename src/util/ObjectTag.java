@@ -11,7 +11,7 @@ public enum ObjectTag {
     bat,
     ghost,
     skeleton,
-    cherry,
+    item,
     boss,
 
 

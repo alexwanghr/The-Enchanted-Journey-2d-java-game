@@ -8,6 +8,7 @@ public class Enemy extends GameObject {
     private boolean hasTip;
     private String line;
     private String tipTextureLocation;
+    private int score;
 
     public Enemy(Point3f centre, ObjectTag tag) {
         hasTextured=true;
@@ -16,6 +17,7 @@ public class Enemy extends GameObject {
         this.centre =centre;
         this.life=1;
         this.tag = tag;
+        this.score = 50;
         if(Math.random()>0.5)
         {
             this.hasTip = true;
@@ -66,4 +68,6 @@ public class Enemy extends GameObject {
     {
         return tipTextureLocation;
     }
+
+    public int getScore(){return score;}
 }
