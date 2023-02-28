@@ -1,6 +1,5 @@
 package object;
 
-import util.GameObject;
 import util.ObjectTag;
 import util.Point3f;
 

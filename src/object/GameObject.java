@@ -1,4 +1,9 @@
-package util;
+package object;
+
+import util.GameUtil;
+import util.ObjectTag;
+import util.Point3f;
+
 /*
  * Created by Abraham Campbell on 15/01/2020.
  *   Copyright (c) 2020  Abraham Campbell
@@ -26,8 +31,8 @@ SOFTWARE.
 public class GameObject {
 	public GameUtil pathutil = GameUtil.getInstance();
 	protected Point3f centre= new Point3f(0,0,0);			// Centre of object, using 3D as objects may be scaled
-	protected int width=10;
-	protected int height=10;
+	protected int width=32;
+	protected int height=32;
 	protected boolean hasTextured=false;
 	protected String textureLocation;
 	protected String blanktexture="res/blankSprite.png";

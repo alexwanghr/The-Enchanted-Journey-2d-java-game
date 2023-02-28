@@ -1,9 +1,7 @@
 package object;
 
-import util.GameObject;
 import util.ObjectTag;
 import util.Point3f;
-import java.util.Random;
 
 public class Item extends GameObject {
 
@@ -23,8 +21,8 @@ public class Item extends GameObject {
     void SetTexture()
     {
         int min = 1;
-        int max = 14;
-        int n = (int)Math.random()*((max - min) + 1) + min;
+        int max = 13;
+        int n = (int)(Math.random()*(max - min + 1)) + min;
         this.textureLocation = pathutil.getItemPath(Integer.toString(n));
     }
 

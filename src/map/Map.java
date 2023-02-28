@@ -33,6 +33,8 @@ public class Map {
                 return ObjectTag.skeleton;
             case (9):
                 return ObjectTag.item;
+            case (10):
+                return ObjectTag.gate;
         }
         return ObjectTag.object;
     }

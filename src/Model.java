@@ -30,34 +30,50 @@ SOFTWARE.
    
    (MIT LICENSE ) e.g do what you want with this :-) 
  */ 
-public class Model {
+public class Model{
+	 private Viewer viewer;
 	 private int level;
+	 private float moveSpeed = 1.5f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private Controller controller = Controller.getInstance();
 	 private GameUtil gameUtil = GameUtil.getInstance();
 	 public int [][] map=null;
+	 public Lines lines;
+	 private Gate gate;
 	 private CopyOnWriteArrayList<Player> PlayerList  = new CopyOnWriteArrayList<Player>();
 	 private CopyOnWriteArrayList<Enemy> EnemiesList  = new CopyOnWriteArrayList<Enemy>();
 	 private CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
 	 private CopyOnWriteArrayList<Grass> GrassList  = new CopyOnWriteArrayList<Grass>();
 	 private CopyOnWriteArrayList<Bullet> BulletList  = new CopyOnWriteArrayList<Bullet>();
+	 private boolean stop = false;
 
 	public Model() throws Exception {
-		PlayerOne = new Player(gameUtil.getPlayerPath(1),new Point3f(20,370,0));
-		PlayerTwo = new Player(gameUtil.getPlayerPath(2),new Point3f(20,2800,0));
+		PlayerOne = new Player(gameUtil.getPlayerPath(1),new Point3f(gameUtil.getWindowWidth()/2,200,0));
+		PlayerTwo = new Player(gameUtil.getPlayerPath(2),new Point3f(gameUtil.getWindowWidth()/2,240,0));
 		PlayerList.add(PlayerOne);
 		PlayerList.add(PlayerTwo);
 		GetLine();
 	}
 
+	public void setViewer(Viewer viewer)
+	{
+		this.viewer=viewer;
+	}
+
 	public void setLevel(int l) throws Exception {
 		level = l;
-		GetMap(level);
+		EnemiesList.clear();
+		GrassList.clear();
+		ItemsList.clear();
+		BulletList.clear();
+		gate = null;
+		map = null;
+	    GetMap(level);
 	}
 	public void GetLine() throws Exception {
-		Lines line = new Lines();
-		line.ReadLine();
+		lines = new Lines();
+		lines.ReadLine();
 	}
 
 	public void GetMap(int level) throws Exception {
@@ -87,22 +103,35 @@ public class Model {
 					grass = new Grass(new Point3f(j*size[0],i*size[1],0), tag);
 					GrassList.add(grass);
 				}
+				else if(tag==ObjectTag.gate)
+				{
+					gate = new Gate(new Point3f(j*size[0],i*size[1],0), tag);
+				}
 			}
 		}
 	}
 	
 	// This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly. 
-	public void gamelogic() 
-	{
-		// Player Logic first 
+	public void gamelogic() throws Exception {
+		if(stop)
+		{
+			if(Controller.getInstance().isKeySpacePressed())
+			{
+				if(hitEnemy!=null) {EnemiesList.remove(hitEnemy);}
+				stop=false;
+			}
+			return;
+		}
 		playerLogic(); 
 		// Enemy Logic next
 		enemyLogic();
 		// Bullets move next 
 		bulletLogic();
 		itemLogic();
+		grassLogic();
+		gateLogic();
 		// interactions between objects
-		gameLogic();
+		checkHitLogic();
 	}
 
 	float getDistanceX(GameObject g1, GameObject g2)
@@ -120,16 +149,21 @@ public class Model {
 		return getDistanceX(g1,g2)< g1.getWidth() && getDistanceY(g1,g2)< g1.getHeight();
 	}
 
-	private void gameLogic() {
+	private void checkHitLogic() throws Exception {
 		//this is a way to increment across the array list data structure
 		//see if they hit anything 
 		//using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
 
 		for (Player player : PlayerList)
 		{
+			if (gate!=null && isHit(player,gate))
+			{
+				PlayerHitGate();
+			}
+
 			for (Enemy enemy : EnemiesList)
 			{
-				if (isHit(enemy,player))
+				if (isHit(player,enemy))
 				{
 					PlayerHitEnemy(player,enemy);
 				}
@@ -137,10 +171,9 @@ public class Model {
 
 			for (Item item : ItemsList)
 			{
-				if (isHit(item,player))
+				if (isHit(player,item))
 				{
-					player.changeScore(item.getScore());
-					ItemsList.remove(item);
+					PlayerHitItem(player,item);
 				}
 			}
 		}
@@ -150,9 +183,9 @@ public class Model {
 		// TODO Auto-generated method stub
 		for (GameObject temp : EnemiesList) 
 		{
-			temp.getCentre().ApplyVector(new Vector3f(0,0,0));
+			temp.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
 			//see if they get to the top of the screen ( remember 0 is the top 
-			if (temp.getCentre().getX()<0)  // current boundary need to pass value to model
+			if (temp.getCentre().getX()<=0)  // current boundary need to pass value to model
 			{
 				EnemiesList.remove(temp);
 			} 
@@ -165,7 +198,7 @@ public class Model {
 		// TODO Auto-generated method stub
 		for (Bullet bullet : BulletList)
 		{
-			bullet.getCentre().ApplyVector(new Vector3f(1,0,0));
+			bullet.getCentre().ApplyVector(new Vector3f(moveSpeed*2,0,0));
 			enemies = EnemiesList.stream()
 					.filter(enemy -> getDistanceY(enemy,bullet)< enemy.getHeight())
 					.toList();
@@ -173,6 +206,7 @@ public class Model {
 			{
 				if (isHit(enemy,bullet))
 				{
+					BulletHitEnemy(bullet,enemy);
 					EnemiesList.remove(enemy);
 					BulletList.remove(bullet);
 				}
@@ -197,29 +231,61 @@ public class Model {
 		}
 	}
 
+	Enemy hitEnemy;
 	void PlayerHitEnemy(Player player, Enemy enemy)
 	{
 		if(enemy.isHasTip())
 		{
-
+			hitEnemy = enemy;
+			enemy.SetLine(lines.getRandomLine());
+			viewer.showTips(enemy);
+			stop=true;
 		}
 		else
 		{
 			player.changeLife(-1);
+			EnemiesList.remove(enemy);
 		}
+	}
+
+	void PlayerHitGate() throws Exception {
+		stop=true;
+		Save gamesave = new Save(this);
+		gamesave.SaveGame();
+	}
+
+	void PlayerHitItem(Player player, Item item)
+	{
+		player.changeScore(item.getScore());
+		ItemsList.remove(item);
 	}
 
 	private void itemLogic() {
 		// TODO Auto-generated method stub
 		for (GameObject temp : ItemsList)
 		{
-			temp.getCentre().ApplyVector(new Vector3f(0,0,0));
-			//see if they get to the top of the screen ( remember 0 is the top
-			if (temp.getCentre().getX()<0)  // current boundary need to pass value to model
+			temp.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
+			if (temp.getCentre().getX()<=0)  // current boundary need to pass value to model
 			{
 				ItemsList.remove(temp);
 			}
 		}
+	}
+
+	private void grassLogic() {
+		// TODO Auto-generated method stub
+		for (GameObject temp : GrassList)
+		{
+			temp.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
+			if (temp.getCentre().getX()<=-20)  // current boundary need to pass value to model
+			{
+				GrassList.remove(temp);
+			}
+		}
+	}
+
+	private void gateLogic() {
+		gate.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
 	}
 
 	private void playerLogic() {
@@ -227,11 +293,6 @@ public class Model {
 		// smoother animation is possible if we make a target position
 		// done but may try to change things for students
 		//check for movement and if you fired a bullet
-		
-		if(Controller.getInstance().isKeyDPressed())
-		{
-			PlayerOne.getCentre().ApplyVector( new Vector3f(2,0,0));
-		}
 			
 		if(Controller.getInstance().isKeyWPressed())
 		{
@@ -253,11 +314,6 @@ public class Model {
 			Controller.getInstance().setKeyEnterPressed(false);
 		}
 
-		if(Controller.getInstance().isKeyRightPressed())
-		{
-			PlayerTwo.getCentre().ApplyVector( new Vector3f(2,0,0));
-		}
-
 		if(Controller.getInstance().isKeyUpPressed())
 		{
 			PlayerTwo.getCentre().ApplyVector( new Vector3f(0,2,0));
@@ -265,6 +321,7 @@ public class Model {
 
 		if(Controller.getInstance().isKeyDownPressed()){
 			PlayerTwo.getCentre().ApplyVector( new Vector3f(0,-2,0));}
+
 	}
 
 	private void CreateBullet(int playerId) {
@@ -302,8 +359,12 @@ public class Model {
 		int score2 = PlayerTwo.getPlayerScore();
 		return new int[]{score1,score2};
 	}
- 
 
+	public int getLevel()
+	{
+		return this.level;
+	}
+	public Gate getGate() {return this.gate;}
 }
 
 

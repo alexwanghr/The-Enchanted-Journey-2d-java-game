@@ -1,6 +1,5 @@
 package object;
 
-import util.GameObject;
 import util.ObjectTag;
 import util.Point3f;
 
@@ -15,6 +14,17 @@ public class Player extends GameObject {
         this.height=64;
         this.centre =centre;
         this.life=3;
+        this.tag = ObjectTag.player;
+    }
+
+    public Player(String textureLocation, Point3f centre,int life, int playerScore) {
+        hasTextured=true;
+        this.textureLocation=textureLocation;
+        this.width=48;
+        this.height=64;
+        this.centre =centre;
+        this.life=life;
+        this.playerScore = playerScore;
         this.tag = ObjectTag.player;
     }
 
@@ -46,5 +56,10 @@ public class Player extends GameObject {
     @Override
     public Point3f getCentre() {
         return super.getCentre();
+    }
+
+    public int getLife()
+    {
+        return this.life;
     }
 }

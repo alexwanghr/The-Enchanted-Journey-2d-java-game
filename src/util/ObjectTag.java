@@ -12,6 +12,7 @@ public enum ObjectTag {
     ghost,
     skeleton,
     item,
+    gate,
     boss,
 
 

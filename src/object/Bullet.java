@@ -1,6 +1,5 @@
 package object;
 
-import util.GameObject;
 import util.Point3f;
 
 public class Bullet extends GameObject {
@@ -27,7 +26,7 @@ public class Bullet extends GameObject {
                 textureLocation = pathutil.getPath("bullet1");
                 break;
             case 2:
-                textureLocation = pathutil.getPath("bullet1");
+                textureLocation = pathutil.getPath("bullet2");
                 break;
         }
     }

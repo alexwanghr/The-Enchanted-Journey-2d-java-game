@@ -6,6 +6,8 @@ import java.awt.Image;
 import java.awt.LayoutManager;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -37,7 +39,7 @@ SOFTWARE.
  
  * Credits: Kelly Charles (2020)
  */ 
-public class Viewer extends JPanel {
+public class Viewer extends JPanel{
 	private long CurrentAnimationTime= 0;
 	private static Model model;
 	private GameUtil gameUtil = GameUtil.getInstance();
@@ -63,10 +65,14 @@ public class Viewer extends JPanel {
 	}
 
 	public void updateview() {
-		
 		this.repaint();
 		// TODO Auto-generated method stub
-		
+	}
+
+	public void showTips(Enemy enemy)
+	{
+		String line = enemy.getLine();
+		System.out.println(line);
 	}
 	
 	
@@ -83,6 +89,9 @@ public class Viewer extends JPanel {
 		model.getBullets().forEach((temp) -> {drawBullet(temp,g);});
         model.getItems().forEach((temp) -> {drawItems(temp,g);});
 		model.getGrass().forEach((temp) -> {drawGrass(temp,g);});
+
+		drawUI(g);
+		drawGate(g);
 	}
 
 
@@ -123,7 +132,6 @@ public class Viewer extends JPanel {
 			int w = item.getWidth();
 			int h = item.getHeight();
             g.drawImage(myImage, x,y, w, h,null);
-
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -148,21 +156,6 @@ public class Viewer extends JPanel {
 		}
 	}
 
-	private void drawBackground(Graphics g)
-	{
-		File TextureToLoad = new File(gameUtil.getPath("bg"));
-		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-		try {
-			Image myImage = ImageIO.read(TextureToLoad);
-			 g.drawImage(myImage, 0,0,gameUtil.getWindowWidth() , gameUtil.getWindowHeight(), null);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	
 	private void drawBullet(Bullet bullet, Graphics g)
 	{
 		String texture = bullet.getTexture();
@@ -200,7 +193,81 @@ public class Viewer extends JPanel {
 			e.printStackTrace();
 		}
 	}
-		 
+
+	private void drawBackground(Graphics g)
+	{
+		File TextureToLoad = new File(gameUtil.getBg(model.getLevel()));
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			Image myImage = ImageIO.read(TextureToLoad);
+			g.drawImage(myImage, 0,0,gameUtil.getWindowWidth() , gameUtil.getWindowHeight(), null);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void drawUI(Graphics g)
+	{
+		File heartT = new File(gameUtil.getHeartPath(true));
+		File heartF = new File(gameUtil.getHeartPath(false));
+		int life = model.getPlayer(1).getLife();
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			for(int i=0; i<3; i++)
+			{
+				Image myImage = ImageIO.read((i>life-1)?heartF:heartT);
+				int x = i*25;
+				int y = 0;
+				g.drawImage(myImage, x, y, 25, 25, null);
+			}
+
+			life = model.getPlayer(2).getLife();
+			for(int i=0; i<3; i++)
+			{
+				Image myImage = ImageIO.read((i>life-1)?heartF:heartT);
+				int x = gameUtil.getWindowWidth()+(i-3)*25;
+				int y = 0;
+				g.drawImage(myImage, x, y, 25, 25, null);
+			}
+
+			g.drawString("Score1 =  "+ model.getScore()[0],0,30);
+			g.drawString("Score2 =  "+ model.getScore()[1],gameUtil.getWindowWidth()-40,30);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void drawGate(Graphics g)
+	{
+		Gate gate = model.getGate();
+		if(gate==null)
+		{
+			return;
+		}
+		File file = new File(gate.getTexture());
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			Image myImage = ImageIO.read(file);
+			int x = (int) gate.getCentre().getX();
+			int y = (int) gate.getCentre().getY();
+			if(x<gameUtil.getWindowWidth()) {
+				int w = gate.getWidth();
+				int h = gate.getHeight();
+				g.drawImage(myImage, x, y, x + w, y + h, null);
+
+				int animationNumber = (int) (CurrentAnimationTime % 40) / 10;
+				g.drawImage(myImage, x, y, x + w, y + h, animationNumber * w,
+						0, (animationNumber + 1) * w, h, null);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	 
 
 }

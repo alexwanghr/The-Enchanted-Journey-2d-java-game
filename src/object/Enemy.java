@@ -1,5 +1,4 @@
 package object;
-import util.GameObject;
 import util.ObjectTag;
 import util.Point3f;
 
@@ -18,10 +17,9 @@ public class Enemy extends GameObject {
         this.life=1;
         this.tag = tag;
         this.score = 50;
-        if(Math.random()>0.5)
+        if(Math.random()>0.2)
         {
             this.hasTip = true;
-            SetLine();
         }
         SetTexture();
     }
@@ -49,9 +47,9 @@ public class Enemy extends GameObject {
         }
     }
 
-    public void SetLine()
+    public void SetLine(String line)
     {
-        this.line = new Lines().getRandomLine();
+        this.line = line;
     }
 
     public String getLine()

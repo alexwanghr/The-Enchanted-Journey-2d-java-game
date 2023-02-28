@@ -34,6 +34,11 @@ public class GameUtil {
 		return "res/bg"+ level +".png";
 	}
 
+	public String getMenuBg()
+	{
+		return "res/bg.png";
+	}
+
 	public String getLine()
 	{
 		return "res/line.txt";
@@ -58,7 +63,15 @@ public class GameUtil {
 	{
 		return "res/grass/"+type +".png";
 	}
+	public String getHeartPath(boolean bool)
+	{
+		return bool?"res/heart/0.png":"res/heart/1.png";
+	}
 
+	public String getSave()
+	{
+		return "res/save.txt";
+	}
 	public static GameUtil getInstance() {
 		// TODO Auto-generated method stub
 		return instance;

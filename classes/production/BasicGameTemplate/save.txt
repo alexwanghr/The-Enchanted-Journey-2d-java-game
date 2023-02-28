@@ -1,0 +1,1 @@
+id:1,life:3,score:0,level:3/nid:2,life:3,score:0,level:3

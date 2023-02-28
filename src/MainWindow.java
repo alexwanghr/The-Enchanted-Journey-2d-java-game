@@ -55,69 +55,40 @@ public class MainWindow {
 	}
 
 	 private static GameUtil gameUtil= new GameUtil();
-	 private static Viewer canvas = new Viewer(model);
+	 private static Viewer viewer = new Viewer(model);
 	 private KeyListener Controller =new Controller();
 	 private static int TargetFPS = 100;
 	 private static boolean startGame= false; 
 	 private JLabel BackgroundImageForStartMenu ;
 	  
-	public MainWindow() {
+	public MainWindow() throws Exception {
+		model.setViewer(viewer);
 		int width = gameUtil.getWindowWidth();
 		int height = gameUtil.getWindowHeight();
 		  frame.setSize(width, height);  // you can customise this later and adapt it to change on size.
 	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //If exit // you can modify with your way of quitting , just is a template.
 	      frame.setLayout(null);
-	      frame.add(canvas);
-	      canvas.setBounds(0, 0, width, height);
-		  canvas.setBackground(new Color(255,255,255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
-		  canvas.setVisible(false);   // this will become visible after you press the key.
-
-		    setLevelBtns();
-	        JButton level1Btn = new JButton("LEVEL 1");
-	        level1Btn.addActionListener(new ActionListener()
-	           {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					level1Btn.setVisible(false);
-					try {
-						LevelBtnOnClick(1);
-					} catch (Exception ex) {
-						throw new RuntimeException(ex);
-					}
-				}});
-	        level1Btn.setBounds(120, 300, 200, 40);
-
-		JButton level2Btn = new JButton("LEVEL 2");
-		level2Btn.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				level2Btn.setVisible(false);
-				try {
-					LevelBtnOnClick(2);
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-			}});
-		level2Btn.setBounds(320, 300, 200, 40);
+	      frame.add(viewer);
+	      viewer.setBounds(0, 0, width, height);
+		  viewer.setBackground(new Color(255,255,255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
+		  viewer.setVisible(false);   // this will become visible after you press the key.
 
 	        //loading background image 
-	        File BackroundToLoad = new File("res/bg.png");  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+	        File BackroundToLoad = new File(gameUtil.getMenuBg());  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 			try {
 				 BufferedImage myPicture = ImageIO.read(BackroundToLoad);
 				 BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
 				 BackgroundImageForStartMenu.setBounds(0, 0, width, height);
-				frame.add(BackgroundImageForStartMenu); 
+				 frame.add(BackgroundImageForStartMenu);
 			}  catch (IOException e) { 
 				e.printStackTrace();
 			}   
-			 
-	         frame.add(level1Btn);
-	         frame.add(level2Btn);
+
+			SetLevelButton();
 	       frame.setVisible(true);
 	}
 
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws Exception {
 		MainWindow hello = new MainWindow();  //sets up environment 
 		while(true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple 
 		{ 
@@ -127,13 +98,11 @@ public class MainWindow {
 			
 			//wait till next time step
 			Thread.sleep(TimeBetweenFrames);
-			
-			
+
 			if(startGame)
 			{
 				gameloop();
 			}
-			
 			//UNIT test to see if framerate matches 
 		 UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS); 
 			  
@@ -142,30 +111,82 @@ public class MainWindow {
 		
 	} 
 	//Basic Model-View-Controller pattern 
-	private static void gameloop() { 
+	private static void gameloop() throws Exception {
 		// GAMELOOP
 		// controller input  will happen on its own thread
 		// So no need to call it explicitly
 		// model update   
 		model.gamelogic();
 		// view update 
-		canvas.updateview();
-		// Both these calls could be setup as  a thread but we want to simplify the game logic for you.  
-		//score update  
-		 frame.setTitle("Score1 =  "+ model.getScore()[0]+", Score2 =  "+ model.getScore()[1]);
+		viewer.updateview();
+		// Both these calls could be setup as  a thread but we want to simplify the game logic for you.
 	}
 
-	void setLevelBtns()
-	{
+	void SetLevelButton() throws Exception {
+		Save gamesave = new Save(model);
+		int level = gamesave.getLevel();
 
+		JButton level1Btn = new JButton("LEVEL 1");
+		level1Btn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				level1Btn.setVisible(false);
+				try {
+					LevelBtnOnClick(1);
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		level1Btn.setBounds(120, 300, 150, 40);
+
+		JButton level2Btn = new JButton("LEVEL 2");
+		level2Btn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				level2Btn.setVisible(false);
+				level2Btn.setEnabled(level>=2);
+				try {
+					LevelBtnOnClick(2);
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		level2Btn.setBounds(300, 300, 150, 40);
+
+		JButton level3Btn = new JButton("LEVEL 3");
+		level3Btn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				level3Btn.setVisible(false);
+				level3Btn.setEnabled(level>=3);
+				try {
+					LevelBtnOnClick(3);
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		level3Btn.setBounds(480, 300, 150, 40);
+
+		frame.add(level1Btn);
+		frame.add(level2Btn);
+		frame.add(level3Btn);
 	}
+
 	void LevelBtnOnClick(int level) throws Exception {
 		BackgroundImageForStartMenu.setVisible(false);
-		canvas.setVisible(true);
-		canvas.addKeyListener(Controller);    //adding the controller to the Canvas
-		canvas.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
+		viewer.setVisible(true);
+		viewer.addKeyListener(Controller);    //adding the controller to the Canvas
+		viewer.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
 		model.setLevel(level);
 		startGame=true;
+	}
+
+	void OpenMenuWindow()
+	{
+
 	}
 }
 
