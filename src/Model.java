@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.journaldev.design.observer.Observer;
+import com.journaldev.design.observer.Subject;
 import object.*;
 import util.*;
 import map.Map;
@@ -29,11 +31,69 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
    
    (MIT LICENSE ) e.g do what you want with this :-) 
- */ 
-public class Model{
-	 private Viewer viewer;
+ */
+
+/*
+// Tutorial //
+Observer Design Pattern in Java
+https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
+*/
+
+public class Model implements Subject {
+
+	private List<Observer> observers;
+	private String message;
+	private boolean changed;
+	private final Object MUTEX= new Object();
+
+	@Override
+	public void register(Observer obj) {
+		if(obj == null) throw new NullPointerException("Null Observer");
+		synchronized (MUTEX) {
+			if(!observers.contains(obj)) observers.add(obj);
+		}
+	}
+
+	@Override
+	public void unregister(Observer obj) {
+		synchronized (MUTEX) {
+			observers.remove(obj);
+		}
+	}
+
+	@Override
+	public void notifyObservers() {
+		List<Observer> observersLocal = null;
+		//synchronization is used to make sure any observer registered after message is received is not notified
+		synchronized (MUTEX) {
+			if (!changed)
+				return;
+			observersLocal = new ArrayList<>(this.observers);
+			this.changed=false;
+		}
+		for (Observer obj : observersLocal) {
+			obj.update();
+		}
+
+	}
+
+	@Override
+	public Object getUpdate(Observer obj) {
+		return this.message;
+	}
+
+	//method to post message to the topic
+	public void postMessage(String msg){
+		System.out.println("Message Posted to Topic:"+msg);
+		this.message=msg;
+		this.changed=true;
+		notifyObservers();
+	}
+
+	private Viewer viewer;
 	 private int level;
-	 private float moveSpeed = 1.5f;
+	 private float moveSpeed = 0.8f;
+	 private float playerSpeed = 0.9f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private Controller controller = Controller.getInstance();
@@ -41,6 +101,7 @@ public class Model{
 	 public int [][] map=null;
 	 public Lines lines;
 	 private Gate gate;
+	 private Boss boss;
 	 private CopyOnWriteArrayList<Player> PlayerList  = new CopyOnWriteArrayList<Player>();
 	 private CopyOnWriteArrayList<Enemy> EnemiesList  = new CopyOnWriteArrayList<Enemy>();
 	 private CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
@@ -49,11 +110,24 @@ public class Model{
 	 private boolean stop = false;
 
 	public Model() throws Exception {
+		this.observers=new ArrayList<>();
+		PlayerList.clear();
 		PlayerOne = new Player(gameUtil.getPlayerPath(1),new Point3f(gameUtil.getWindowWidth()/2,200,0));
 		PlayerTwo = new Player(gameUtil.getPlayerPath(2),new Point3f(gameUtil.getWindowWidth()/2,240,0));
 		PlayerList.add(PlayerOne);
 		PlayerList.add(PlayerTwo);
 		GetLine();
+	}
+
+	public Model(Player playerOne, Player playerTwo, int level) throws Exception {
+		this.observers=new ArrayList<>();
+		PlayerList.clear();
+		PlayerOne = playerOne;
+		PlayerTwo = playerTwo;
+		PlayerList.add(PlayerOne);
+		PlayerList.add(playerTwo);
+		GetLine();
+		setLevel(level);
 	}
 
 	public void setViewer(Viewer viewer)
@@ -90,22 +164,34 @@ public class Model{
 				ObjectTag tag = mp.getTag(map[i][j]);
 				if(tag==ObjectTag.frog||tag==ObjectTag.bat||tag==ObjectTag.ghost||tag==ObjectTag.skeleton)
 				{
-					enemy = new Enemy(new Point3f(j*size[0],i*size[1],0), tag);
-					EnemiesList.add(enemy);
+					if(EnemiesList.size()<=2)
+					{
+						enemy = new Enemy(new Point3f(j*size[0],i*size[1],0), tag,true);
+						EnemiesList.add(enemy);
+					}
+					else
+					{
+						enemy = new Enemy(new Point3f(j * size[0], i * size[1], 0), tag);
+						EnemiesList.add(enemy);
+					}
 				}
 				else if(tag==ObjectTag.item)
 				{
-					item = new Item(new Point3f(j*size[0],i*size[1],0), tag);
+					item = new Item(new Point3f(j*size[0],i*size[1],0));
 					ItemsList.add(item);
 				}
 				else if(tag==ObjectTag.grass_L||tag==ObjectTag.grass_R||tag==ObjectTag.grass_T||tag==ObjectTag.grass)
 				{
-					grass = new Grass(new Point3f(j*size[0],i*size[1],0), tag);
+					grass = new Grass(new Point3f(j*size[0],i*size[1],0),tag);
 					GrassList.add(grass);
 				}
 				else if(tag==ObjectTag.gate)
 				{
-					gate = new Gate(new Point3f(j*size[0],i*size[1],0), tag);
+					gate = new Gate(new Point3f(j*size[0],i*size[1],0));
+				}
+				else if(tag==ObjectTag.boss)
+				{
+					boss = new Boss(new Point3f(j*size[0],i*size[1],0));
 				}
 			}
 		}
@@ -117,8 +203,12 @@ public class Model{
 		{
 			if(Controller.getInstance().isKeySpacePressed())
 			{
-				if(hitEnemy!=null) {EnemiesList.remove(hitEnemy);}
+				if(hitEnemy!=null)
+				{
+					EnemiesList.remove(hitEnemy);
+				}
 				stop=false;
+				viewer.closeTips();
 			}
 			return;
 		}
@@ -156,9 +246,13 @@ public class Model{
 
 		for (Player player : PlayerList)
 		{
-			if (gate!=null && isHit(player,gate))
+			if (gate!=null && getDistanceX(player,gate)<5)
 			{
 				PlayerHitGate();
+			}
+			if (boss!=null && getDistanceX(player,boss)<5)
+			{
+				PlayerHitBoss();
 			}
 
 			for (Enemy enemy : EnemiesList)
@@ -232,32 +326,52 @@ public class Model{
 	}
 
 	Enemy hitEnemy;
+	public Enemy getHitEnemy()
+	{
+		return this.hitEnemy;
+	}
 	void PlayerHitEnemy(Player player, Enemy enemy)
 	{
 		if(enemy.isHasTip())
 		{
 			hitEnemy = enemy;
 			enemy.SetLine(lines.getRandomLine());
-			viewer.showTips(enemy);
+			viewer.showTips();
 			stop=true;
 		}
 		else
 		{
 			player.changeLife(-1);
+			CheckLife();
 			EnemiesList.remove(enemy);
 		}
 	}
 
+	void CheckLife()
+	{
+		if(PlayerOne.getLife()==0 && PlayerTwo.getLife()==0)
+		{
+			stop=true;
+			postMessage("game over");
+		}
+	}
 	void PlayerHitGate() throws Exception {
 		stop=true;
 		Save gamesave = new Save(this);
 		gamesave.SaveGame();
+		postMessage("hit gate");
 	}
 
 	void PlayerHitItem(Player player, Item item)
 	{
 		player.changeScore(item.getScore());
 		ItemsList.remove(item);
+	}
+
+	void PlayerHitBoss() throws Exception {
+		stop=true;
+		Save gamesave = new Save(this);
+		gamesave.SaveGame();
 	}
 
 	private void itemLogic() {
@@ -293,37 +407,58 @@ public class Model{
 		// smoother animation is possible if we make a target position
 		// done but may try to change things for students
 		//check for movement and if you fired a bullet
-			
-		if(Controller.getInstance().isKeyWPressed())
-		{
-			PlayerOne.getCentre().ApplyVector( new Vector3f(0,2,0));
-		}
-		
-		if(Controller.getInstance().isKeySPressed()){
-			PlayerOne.getCentre().ApplyVector( new Vector3f(0,-2,0));}
-		
-		if(Controller.getInstance().isKeyShiftPressed())
-		{
-			CreateBullet(1);
-			Controller.getInstance().setKeyShiftPressed(false);
-		}
+		if(PlayerOne.getLife()>0) {
+			if (Controller.getInstance().isKeyShiftPressed()) {
+				CreateBullet(1);
+				//Controller.getInstance().setKeyShiftPressed(false);
+			}
 
-		if(Controller.getInstance().isKeyEnterPressed())
-		{
-			CreateBullet(2);
-			Controller.getInstance().setKeyEnterPressed(false);
+			if (Controller.getInstance().isKeyWPressed()) {
+				PlayerOne.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, playerSpeed, 0),GetPlayerBoundary());
+			}
+
+			if (Controller.getInstance().isKeySPressed()) {
+				PlayerOne.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, -playerSpeed, 0),GetPlayerBoundary());
+			}
 		}
 
-		if(Controller.getInstance().isKeyUpPressed())
-		{
-			PlayerTwo.getCentre().ApplyVector( new Vector3f(0,2,0));
+		if(PlayerTwo.getLife()>0) {
+			if (Controller.getInstance().isKeyEnterPressed()) {
+				CreateBullet(2);
+				//Controller.getInstance().setKeyEnterPressed(false);
+			}
+
+			if (Controller.getInstance().isKeyUpPressed()) {
+				PlayerTwo.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, playerSpeed, 0),GetPlayerBoundary());
+			}
+
+			if (Controller.getInstance().isKeyDownPressed()) {
+				PlayerTwo.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, -playerSpeed, 0),GetPlayerBoundary());
+			}
 		}
-
-		if(Controller.getInstance().isKeyDownPressed()){
-			PlayerTwo.getCentre().ApplyVector( new Vector3f(0,-2,0));}
-
 	}
 
+	int[] GetPlayerBoundary()
+	{
+		int minY = 0;
+		int maxY = gameUtil.getWindowHeight();
+		for(Grass grass: GrassList)
+		{
+			if(getDistanceX(PlayerOne,grass)<32)
+			{
+				if(grass.getCentre().getY()<gameUtil.getWindowHeight()/2)
+				{
+					minY = (int)grass.getCentre().getY();
+				}
+				if(grass.getCentre().getY()>gameUtil.getWindowHeight()/2)
+				{
+					maxY = (int)grass.getCentre().getY();
+				}
+			}
+		}
+		System.out.println("min:"+minY+", max:"+maxY);
+		return new int[]{minY,maxY};
+	}
 	private void CreateBullet(int playerId) {
 		if(playerId==1) {
 			BulletList.add(new Bullet(new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth(),

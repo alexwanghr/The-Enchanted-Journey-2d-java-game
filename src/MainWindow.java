@@ -12,6 +12,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.journaldev.design.observer.Observer;
+import com.journaldev.design.observer.Subject;
 import util.GameUtil;
 import util.UnitTests;
 
@@ -40,10 +42,31 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  */ 
 
+/*
+// Tutorial //
+Observer Design Pattern in Java
+https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
+*/
 
 
-public class MainWindow {
-	 private static JFrame frame = new JFrame("Witch");
+public class MainWindow implements Observer {
+	private String name;
+	private Subject subject;
+
+	@Override
+	public void update() {
+		String msg = (String) subject.getUpdate(this);
+		if(msg == null){
+			System.out.println(name+":: No new message");
+		}else
+			System.out.println(name+":: Consuming message::"+msg);
+	}
+
+	@Override
+	public void setSubject(Subject sub) {
+		subject = model;
+	}
+	 private static JFrame frame = new JFrame("The Enchanted Journey");
 	 private static Model model;
 
 	 static {
@@ -59,9 +82,10 @@ public class MainWindow {
 	 private KeyListener Controller =new Controller();
 	 private static int TargetFPS = 100;
 	 private static boolean startGame= false; 
-	 private JLabel BackgroundImageForStartMenu ;
+	 private JLabel BackgroundImageForStartMenu;
 	  
-	public MainWindow() throws Exception {
+	public MainWindow(){
+		subject = model;
 		model.setViewer(viewer);
 		int width = gameUtil.getWindowWidth();
 		int height = gameUtil.getWindowHeight();
@@ -78,12 +102,11 @@ public class MainWindow {
 			try {
 				 BufferedImage myPicture = ImageIO.read(BackroundToLoad);
 				 BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-				 BackgroundImageForStartMenu.setBounds(0, 0, width, height);
+				 BackgroundImageForStartMenu.setSize(width,height);
 				 frame.add(BackgroundImageForStartMenu);
 			}  catch (IOException e) { 
 				e.printStackTrace();
-			}   
-
+			}
 			SetLevelButton();
 	       frame.setVisible(true);
 	}
@@ -104,12 +127,10 @@ public class MainWindow {
 				gameloop();
 			}
 			//UNIT test to see if framerate matches 
-		 UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS); 
-			  
+		 UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS);
 		}
-		
-		
-	} 
+	}
+
 	//Basic Model-View-Controller pattern 
 	private static void gameloop() throws Exception {
 		// GAMELOOP
@@ -122,9 +143,30 @@ public class MainWindow {
 		// Both these calls could be setup as  a thread but we want to simplify the game logic for you.
 	}
 
-	void SetLevelButton() throws Exception {
-		Save gamesave = new Save(model);
-		int level = gamesave.getLevel();
+	void SetMenuPage()
+	{
+		System.out.println("go back to menu");
+	}
+
+	void SetGameOverPage()
+	{
+		System.out.println("game over");
+	}
+
+	void SetLevelButton() {
+
+		JButton loadBtn = new JButton("Continue");
+		loadBtn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					ContinueBtnOnClick();
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		loadBtn.setBounds(300, 240, 150, 40);
 
 		JButton level1Btn = new JButton("LEVEL 1");
 		level1Btn.addActionListener(new ActionListener()
@@ -146,7 +188,6 @@ public class MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				level2Btn.setVisible(false);
-				level2Btn.setEnabled(level>=2);
 				try {
 					LevelBtnOnClick(2);
 				} catch (Exception ex) {
@@ -161,7 +202,6 @@ public class MainWindow {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				level3Btn.setVisible(false);
-				level3Btn.setEnabled(level>=3);
 				try {
 					LevelBtnOnClick(3);
 				} catch (Exception ex) {
@@ -170,6 +210,7 @@ public class MainWindow {
 			}});
 		level3Btn.setBounds(480, 300, 150, 40);
 
+		frame.add(loadBtn);
 		frame.add(level1Btn);
 		frame.add(level2Btn);
 		frame.add(level3Btn);
@@ -184,8 +225,10 @@ public class MainWindow {
 		startGame=true;
 	}
 
-	void OpenMenuWindow()
-	{
+	void ContinueBtnOnClick() throws Exception {
+		Save gamesave = new Save(model);
+		int level = gamesave.getLevel();
+		model = new Model(gamesave.getPlayerOne(),gamesave.getPlayerTwo(),level);
 
 	}
 }

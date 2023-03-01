@@ -1,3 +1,4 @@
+--------------------------------ART-------------------------------------------
 Witch
 Copyright/Attribution:
   Created by Svetlana Kushnariova (Cabbit) <lana-chan@yandex.ru> & Jordan Irwin (AntumDeluge)
@@ -6,7 +7,6 @@ Copyright/Attribution:
 Monster
 Artwork created by Luis Zuno (@ansimuz)
 http://creativecommons.org/licenses/by/3.0/
-
 
 Grass
 https://opengameart.org/content/grass-and-dirt-tiles-32x32
@@ -18,3 +18,9 @@ https://opengameart.org/content/sky-background
 
 Heart
 https://opengameart.org/content/pixel-hearts
+
+--------------------------------CODE------------------------------------------
+Observer Design Pattern in Java
+https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
+
+--------------------------------MUSIC------------------------------------------

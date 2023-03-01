@@ -35,6 +35,8 @@ public class Map {
                 return ObjectTag.item;
             case (10):
                 return ObjectTag.gate;
+            case (11):
+                return ObjectTag.boss;
         }
         return ObjectTag.object;
     }

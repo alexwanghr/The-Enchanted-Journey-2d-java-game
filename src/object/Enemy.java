@@ -24,6 +24,18 @@ public class Enemy extends GameObject {
         SetTexture();
     }
 
+    public Enemy(Point3f centre, ObjectTag tag, boolean tips) {
+        hasTextured=true;
+        this.width=32;
+        this.height=32;
+        this.centre =centre;
+        this.life=1;
+        this.tag = tag;
+        this.score = 50;
+        this.hasTip = tips;
+        SetTexture();
+    }
+
     public void SetTexture()
     {
         if(hasTip)

@@ -7,13 +7,13 @@ public class Item extends GameObject {
 
     int score;
 
-    public Item(Point3f centre, ObjectTag tag)
+    public Item(Point3f centre)
     {
         hasTextured=true;
         this.width=32;
         this.height=32;
         this.centre =centre;
-        this.tag = tag;
+        this.tag = ObjectTag.item;
         this.score = 50;
         SetTexture();
     }

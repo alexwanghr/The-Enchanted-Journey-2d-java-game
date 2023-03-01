@@ -98,6 +98,17 @@ public class Point3f {
 		 setZ(CheckBoundary(this.getZ()-vector.getZ())); 
 	}
 
+	public void ApplyVectorWithBoundaryY(Vector3f vector, int[] bound) {
+		float y = this.getY()-vector.getY();
+		int min = bound[0];
+		int max = bound[1];
+		if(y<min) y=min+32;
+		if(y>max) y=max-32;
+		setX(this.getX()+vector.getX());
+		setY(y);
+		setZ(this.getZ()-vector.getZ());
+	}
+
 	private float CheckBoundary(float f) {
 //		if (f<0) f=0.0f;
 //		if (f>boundary)f=(float) boundary;

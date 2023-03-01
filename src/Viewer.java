@@ -69,21 +69,26 @@ public class Viewer extends JPanel{
 		// TODO Auto-generated method stub
 	}
 
-	public void showTips(Enemy enemy)
+    boolean showTips;
+	public void showTips()
 	{
-		String line = enemy.getLine();
-		System.out.println(line);
+        showTips=true;
 	}
+
+    public void closeTips()
+    {
+        showTips=false;
+    }
 	
 	
 	public void paintComponent(Graphics g) {
-		
+
 		super.paintComponent(g);
 		CurrentAnimationTime++; // runs animation time step
 
 		drawBackground(g);
-		drawPlayer(model.getPlayer(1),g);
-		drawPlayer(model.getPlayer(2),g);
+		if(model.getPlayer(1).getLife()>0)drawPlayer(model.getPlayer(1),g);
+		if(model.getPlayer(2).getLife()>0)drawPlayer(model.getPlayer(2),g);
 
 		model.getEnemies().forEach((temp) -> {drawEnemies(temp,g);});
 		model.getBullets().forEach((temp) -> {drawBullet(temp,g);});
@@ -91,7 +96,19 @@ public class Viewer extends JPanel{
 		model.getGrass().forEach((temp) -> {drawGrass(temp,g);});
 
 		drawUI(g);
-		drawGate(g);
+
+		Gate gate = model.getGate();
+		if(gate!=null && (int)gate.getCentre().getX()<gameUtil.getWindowWidth())
+		{
+			drawGate(gate,g);
+		}
+
+		if(showTips)
+		{
+			if(model.getHitEnemy()!=null) {
+				drawTips(model.getHitEnemy(),g);
+			}
+		}
 	}
 
 
@@ -232,8 +249,8 @@ public class Viewer extends JPanel{
 				g.drawImage(myImage, x, y, 25, 25, null);
 			}
 
-			g.drawString("Score1 =  "+ model.getScore()[0],0,30);
-			g.drawString("Score2 =  "+ model.getScore()[1],gameUtil.getWindowWidth()-40,30);
+			g.drawString("Player 1 Score =  "+ model.getScore()[0],6,40);
+			g.drawString("Player 2 Score =  "+ model.getScore()[1],gameUtil.getWindowWidth()-120,40);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -241,33 +258,39 @@ public class Viewer extends JPanel{
 		}
 	}
 
-	private void drawGate(Graphics g)
+	private void drawGate(Gate gate,Graphics g)
 	{
-		Gate gate = model.getGate();
-		if(gate==null)
-		{
-			return;
-		}
 		File file = new File(gate.getTexture());
 		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			Image myImage = ImageIO.read(file);
 			int x = (int) gate.getCentre().getX();
 			int y = (int) gate.getCentre().getY();
-			if(x<gameUtil.getWindowWidth()) {
-				int w = gate.getWidth();
-				int h = gate.getHeight();
-				g.drawImage(myImage, x, y, x + w, y + h, null);
-
-				int animationNumber = (int) (CurrentAnimationTime % 40) / 10;
-				g.drawImage(myImage, x, y, x + w, y + h, animationNumber * w,
-						0, (animationNumber + 1) * w, h, null);
-			}
+			int w = gate.getWidth();
+			int h = gate.getHeight();
+			int animationNumber = (int) (CurrentAnimationTime % 40) / 10;
+			g.drawImage(myImage, x, y, x + w, y + h, animationNumber * w,
+					0, (animationNumber + 1) * w, h, null);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+
+    private void drawTips(Enemy enemy,Graphics g)
+    {
+        File file = new File(gameUtil.getPath("dialog"));
+        String line = enemy.getLine();
+        try {
+			Image myImage = ImageIO.read(file);
+			g.drawImage(myImage, 0, 0, gameUtil.getWindowWidth(), gameUtil.getWindowHeight(), null);
+			g.drawString(line,60,350);
+            g.drawString("press Space to continue",230,430);
+		} catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 	 
 
 }

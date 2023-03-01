@@ -5,12 +5,12 @@ import util.Point3f;
 
 public class Gate extends GameObject {
 
-    public Gate(Point3f centre, ObjectTag tag) {
+    public Gate(Point3f centre) {
         hasTextured=true;
-        this.width=256;
-        this.height=256;
+        this.width=240;
+        this.height=240;
         this.centre =centre;
-        this.tag = tag;
+        this.tag = ObjectTag.gate;
         this.textureLocation = pathutil.getPath("gate");
     }
 }

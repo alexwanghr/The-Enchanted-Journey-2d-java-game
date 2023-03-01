@@ -105,4 +105,7 @@ public class Save {
     {
         return this.level;
     }
+
+    public Player getPlayerOne(){return playerOne;}
+    public Player getPlayerTwo(){return playerTwo;}
 }
