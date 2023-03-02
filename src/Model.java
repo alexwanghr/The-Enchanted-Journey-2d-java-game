@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import com.journaldev.design.observer.EventType;
 import com.journaldev.design.observer.Observer;
 import com.journaldev.design.observer.Subject;
 import object.*;
@@ -41,8 +42,8 @@ https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 
 public class Model implements Subject {
 
-	private List<Observer> observers;
-	private String message;
+	private List<Observer> observers=new ArrayList<>();
+	private EventType message;
 	private boolean changed;
 	private final Object MUTEX= new Object();
 
@@ -78,20 +79,19 @@ public class Model implements Subject {
 	}
 
 	@Override
-	public Object getUpdate(Observer obj) {
+	public EventType getUpdate(Observer obj) {
 		return this.message;
 	}
 
 	//method to post message to the topic
-	public void postMessage(String msg){
-		System.out.println("Message Posted to Topic:"+msg);
+	public void postMessage(EventType msg){
 		this.message=msg;
 		this.changed=true;
 		notifyObservers();
 	}
 
-	private Viewer viewer;
-	 private int level;
+	 private Viewer viewer;
+	 private int level=1;
 	 private float moveSpeed = 0.8f;
 	 private float playerSpeed = 0.9f;
 	 private Player PlayerOne;
@@ -107,44 +107,34 @@ public class Model implements Subject {
 	 private CopyOnWriteArrayList<Item> ItemsList  = new CopyOnWriteArrayList<Item>();
 	 private CopyOnWriteArrayList<Grass> GrassList  = new CopyOnWriteArrayList<Grass>();
 	 private CopyOnWriteArrayList<Bullet> BulletList  = new CopyOnWriteArrayList<Bullet>();
-	 private boolean stop = false;
+	 private boolean hitEnemyStop;
+	private boolean hitBossStop;
 
-	public Model() throws Exception {
-		this.observers=new ArrayList<>();
-		PlayerList.clear();
-		PlayerOne = new Player(gameUtil.getPlayerPath(1),new Point3f(gameUtil.getWindowWidth()/2,200,0));
-		PlayerTwo = new Player(gameUtil.getPlayerPath(2),new Point3f(gameUtil.getWindowWidth()/2,240,0));
-		PlayerList.add(PlayerOne);
-		PlayerList.add(PlayerTwo);
-		GetLine();
-	}
-
-	public Model(Player playerOne, Player playerTwo, int level) throws Exception {
-		this.observers=new ArrayList<>();
-		PlayerList.clear();
-		PlayerOne = playerOne;
-		PlayerTwo = playerTwo;
-		PlayerList.add(PlayerOne);
-		PlayerList.add(playerTwo);
-		GetLine();
-		setLevel(level);
-	}
-
-	public void setViewer(Viewer viewer)
+	public void setObservers(Observer obs)
 	{
-		this.viewer=viewer;
+		this.observers.add(obs);
 	}
 
-	public void setLevel(int l) throws Exception {
-		level = l;
+	public Model(Save save) throws Exception {
+		this.observers=new ArrayList<>();
+		PlayerList.clear();
 		EnemiesList.clear();
 		GrassList.clear();
 		ItemsList.clear();
 		BulletList.clear();
 		gate = null;
 		map = null;
-	    GetMap(level);
+
+		PlayerOne = save.getPlayerOne();
+		PlayerTwo = save.getPlayerTwo();
+		PlayerList.add(PlayerOne);
+		PlayerList.add(PlayerTwo);
+
+		level = save.getLevel();
+		GetLine();
+		GetMap(level);
 	}
+
 	public void GetLine() throws Exception {
 		lines = new Lines();
 		lines.ReadLine();
@@ -162,7 +152,7 @@ public class Model implements Subject {
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
 				ObjectTag tag = mp.getTag(map[i][j]);
-				if(tag==ObjectTag.frog||tag==ObjectTag.bat||tag==ObjectTag.ghost||tag==ObjectTag.skeleton)
+				if(tag==ObjectTag.frog||tag==ObjectTag.bat||tag==ObjectTag.ghost)
 				{
 					if(EnemiesList.size()<=2)
 					{
@@ -199,7 +189,7 @@ public class Model implements Subject {
 	
 	// This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly. 
 	public void gamelogic() throws Exception {
-		if(stop)
+		if(hitEnemyStop)
 		{
 			if(Controller.getInstance().isKeySpacePressed())
 			{
@@ -207,8 +197,23 @@ public class Model implements Subject {
 				{
 					EnemiesList.remove(hitEnemy);
 				}
-				stop=false;
-				viewer.closeTips();
+				hitEnemyStop =false;
+				postMessage(EventType.CLOSE_TIP);
+			}
+			return;
+		}
+
+		if(hitBossStop)
+		{
+			if(Controller.getInstance().isKeySpacePressed())
+			{
+				if(boss.CheckHasNextLine()) {
+					boss.showNextLine();
+				}
+				else
+				{
+					postMessage(EventType.GAME_END);
+				}
 			}
 			return;
 		}
@@ -219,7 +224,12 @@ public class Model implements Subject {
 		bulletLogic();
 		itemLogic();
 		grassLogic();
-		gateLogic();
+		if(gate!=null) {
+			gateLogic();
+		}
+		if(boss!=null) {
+			bossLogic();
+		}
 		// interactions between objects
 		checkHitLogic();
 	}
@@ -243,14 +253,13 @@ public class Model implements Subject {
 		//this is a way to increment across the array list data structure
 		//see if they hit anything 
 		//using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
-
 		for (Player player : PlayerList)
 		{
-			if (gate!=null && getDistanceX(player,gate)<5)
+			if (gate!=null && getDistanceX(player,gate)<2)
 			{
 				PlayerHitGate();
 			}
-			if (boss!=null && getDistanceX(player,boss)<5)
+			if (boss!=null && getDistanceX(player,boss)<3)
 			{
 				PlayerHitBoss();
 			}
@@ -286,24 +295,22 @@ public class Model implements Subject {
 		}
 	}
 
-
-	List<Enemy> enemies  = new ArrayList<>();
 	private void bulletLogic() {
 		// TODO Auto-generated method stub
 		for (Bullet bullet : BulletList)
 		{
 			bullet.getCentre().ApplyVector(new Vector3f(moveSpeed*2,0,0));
-			enemies = EnemiesList.stream()
-					.filter(enemy -> getDistanceY(enemy,bullet)< enemy.getHeight())
-					.toList();
-			for (Enemy enemy : enemies)
+			for (Enemy enemy : EnemiesList)
 			{
 				if (isHit(enemy,bullet))
 				{
 					BulletHitEnemy(bullet,enemy);
-					EnemiesList.remove(enemy);
-					BulletList.remove(bullet);
 				}
+			}
+
+			if (boss!=null && isHit(boss,bullet))
+			{
+				BulletHitBoss(bullet);
 			}
 
 			if (bullet.getCentre().getX()> gameUtil.getWindowWidth())
@@ -323,6 +330,19 @@ public class Model implements Subject {
 		{
 			getPlayer(bullet.getBelongId()).changeScore(enemy.getScore());
 		}
+		EnemiesList.remove(enemy);
+		BulletList.remove(bullet);
+	}
+
+	private int sum=0;
+	void BulletHitBoss(Bullet bullet)
+	{
+		sum++;
+		BulletList.remove(bullet);
+		getPlayer(bullet.getBelongId()).changeScore((-1)*boss.getPunishscore());
+		if(sum>=10){
+			GameOver();
+		}
 	}
 
 	Enemy hitEnemy;
@@ -336,30 +356,24 @@ public class Model implements Subject {
 		{
 			hitEnemy = enemy;
 			enemy.SetLine(lines.getRandomLine());
-			viewer.showTips();
-			stop=true;
+			postMessage(EventType.SHOW_TIP);
+			hitEnemyStop =true;
 		}
 		else
 		{
 			player.changeLife(-1);
-			CheckLife();
 			EnemiesList.remove(enemy);
+			if(PlayerOne.getLife()==0 && PlayerTwo.getLife()==0)
+			{
+				GameOver();
+			}
 		}
 	}
 
-	void CheckLife()
-	{
-		if(PlayerOne.getLife()==0 && PlayerTwo.getLife()==0)
-		{
-			stop=true;
-			postMessage("game over");
-		}
-	}
-	void PlayerHitGate() throws Exception {
-		stop=true;
-		Save gamesave = new Save(this);
-		gamesave.SaveGame();
-		postMessage("hit gate");
+	void PlayerHitGate() {
+		hitEnemyStop =true;
+		level+=1;
+		postMessage(EventType.SAVE_GAME);
 	}
 
 	void PlayerHitItem(Player player, Item item)
@@ -369,9 +383,11 @@ public class Model implements Subject {
 	}
 
 	void PlayerHitBoss() throws Exception {
-		stop=true;
-		Save gamesave = new Save(this);
-		gamesave.SaveGame();
+		hitBossStop =true;
+		level+=1;
+		Save gamesave = new Save();
+		gamesave.SaveGame(this);
+		postMessage(EventType.HIT_BOSS);
 	}
 
 	private void itemLogic() {
@@ -398,8 +414,14 @@ public class Model implements Subject {
 		}
 	}
 
-	private void gateLogic() {
+	private void gateLogic()
+	{
 		gate.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
+	}
+
+	private void bossLogic()
+	{
+		boss.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
 	}
 
 	private void playerLogic() {
@@ -410,7 +432,7 @@ public class Model implements Subject {
 		if(PlayerOne.getLife()>0) {
 			if (Controller.getInstance().isKeyShiftPressed()) {
 				CreateBullet(1);
-				//Controller.getInstance().setKeyShiftPressed(false);
+				Controller.getInstance().setKeyShiftPressed(false);
 			}
 
 			if (Controller.getInstance().isKeyWPressed()) {
@@ -425,7 +447,7 @@ public class Model implements Subject {
 		if(PlayerTwo.getLife()>0) {
 			if (Controller.getInstance().isKeyEnterPressed()) {
 				CreateBullet(2);
-				//Controller.getInstance().setKeyEnterPressed(false);
+				Controller.getInstance().setKeyEnterPressed(false);
 			}
 
 			if (Controller.getInstance().isKeyUpPressed()) {
@@ -456,7 +478,6 @@ public class Model implements Subject {
 				}
 			}
 		}
-		System.out.println("min:"+minY+", max:"+maxY);
 		return new int[]{minY,maxY};
 	}
 	private void CreateBullet(int playerId) {
@@ -470,8 +491,17 @@ public class Model implements Subject {
 		}
 	}
 
+	void GameOver()
+	{
+		hitEnemyStop =true;
+		postMessage(EventType.GAME_OVER);
+	}
+
 	public Player getPlayer(int id) {
 		return PlayerList.get(id-1);
+	}
+	public Boss getBoss() {
+		return boss;
 	}
 
 	public CopyOnWriteArrayList<Enemy> getEnemies() {

@@ -24,3 +24,6 @@ Observer Design Pattern in Java
 https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 
 --------------------------------MUSIC------------------------------------------
+
+--------------------------------SCRIPT------------------------------------------
+by ChatGPT

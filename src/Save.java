@@ -9,20 +9,22 @@ public class Save {
 
     Player playerOne;
     Player playerTwo;
-    int level;
+    int level=1;
     private GameUtil pathutil = GameUtil.getInstance();
     private Model model;
 
-    public Save(Model model) throws Exception {
-        this.model = model;
+    public Save() throws Exception {
+        playerOne = new Player(pathutil.getPlayerPath(1),new Point3f(pathutil.getWindowWidth()/2,200,0));
+        playerTwo = new Player(pathutil.getPlayerPath(2),new Point3f(pathutil.getWindowWidth()/2,240,0));
         ReadSave();
     }
 
-    public void SaveGame()
+    public void SaveGame(Model model)
     {
         playerOne = model.getPlayer(1);
         playerTwo = model.getPlayer(2);
         level = model.getLevel();
+        if(level>3) level=3;
         String playerData = String.format("id:%d,life:%d,score:%d,level:%d",
                 1,playerOne.getLife(),playerOne.getPlayerScore(),level);
         String str = playerData+"\n";
@@ -90,13 +92,13 @@ public class Save {
     {
         if(id==1) {
             playerOne = new Player(pathutil.getPlayerPath(1),
-                    new Point3f(pathutil.getWindowWidth() / 2, 200, 0)
+                    new Point3f(pathutil.getWindowWidth() / 2-50, 200, 0)
                     , life, playerScore);
         }
         else
         {
             playerTwo = new Player(pathutil.getPlayerPath(1),
-                    new Point3f(pathutil.getWindowWidth() / 2, 200, 0)
+                    new Point3f(pathutil.getWindowWidth() / 2-50, 220, 0)
                     , life, playerScore);
         }
     }

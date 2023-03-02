@@ -29,8 +29,6 @@ public class Map {
                 return ObjectTag.bat;
             case (7):
                 return ObjectTag.ghost;
-            case (8):
-                return ObjectTag.skeleton;
             case (9):
                 return ObjectTag.item;
             case (10):
@@ -59,7 +57,7 @@ public class Map {
         br.close();
 
         int row= stringList.size();
-        int cloum=stringList.get(0).split(",").length;
+        int cloum=stringList.get(0).split(",").length+100;
 
         map = new int [row][cloum];
 
@@ -67,7 +65,17 @@ public class Map {
             String s= stringList.get(i);
             String [] values=s.split(",");
             for (int j = 0; j < cloum; j++) {
-                map[i][j]=Integer.parseInt(values[j]);
+                if(j<values.length) {
+                    try {
+                        map[i][j] = Integer.parseInt(values[j]);
+                    } catch (NumberFormatException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                else
+                {
+                    map[i][j] = 0;
+                }
             }
         }
         return map;

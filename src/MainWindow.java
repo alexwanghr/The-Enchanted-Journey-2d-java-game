@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+import com.journaldev.design.observer.EventType;
 import com.journaldev.design.observer.Observer;
 import com.journaldev.design.observer.Subject;
 import util.GameUtil;
@@ -50,16 +51,17 @@ https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 
 
 public class MainWindow implements Observer {
-	private String name;
 	private Subject subject;
 
 	@Override
 	public void update() {
-		String msg = (String) subject.getUpdate(this);
-		if(msg == null){
-			System.out.println(name+":: No new message");
-		}else
-			System.out.println(name+":: Consuming message::"+msg);
+		EventType msg = (EventType) subject.getUpdate(this);
+		switch(msg)
+		{
+			case GAME_OVER -> SetGameOverPage();
+			case GO_TO_MENU -> SetMenuPage();
+			case SAVE_GAME -> SaveGame();
+		}
 	}
 
 	@Override
@@ -67,11 +69,14 @@ public class MainWindow implements Observer {
 		subject = model;
 	}
 	 private static JFrame frame = new JFrame("The Enchanted Journey");
+
+	 private static Save save;
 	 private static Model model;
 
-	 static {
+	 static{
 		try {
-			model = new Model();
+			save = new Save();
+			model = new Model(save);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -80,15 +85,18 @@ public class MainWindow implements Observer {
 	 private static GameUtil gameUtil= new GameUtil();
 	 private static Viewer viewer = new Viewer(model);
 	 private KeyListener Controller =new Controller();
+	 private int width;
+	 private int height;
 	 private static int TargetFPS = 100;
 	 private static boolean startGame= false; 
 	 private JLabel BackgroundImageForStartMenu;
 	  
-	public MainWindow(){
+	public MainWindow() throws Exception {
 		subject = model;
-		model.setViewer(viewer);
-		int width = gameUtil.getWindowWidth();
-		int height = gameUtil.getWindowHeight();
+		model.setObservers(this);
+		model.setObservers(viewer);
+		width = gameUtil.getWindowWidth();
+		height = gameUtil.getWindowHeight();
 		  frame.setSize(width, height);  // you can customise this later and adapt it to change on size.
 	      frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);   //If exit // you can modify with your way of quitting , just is a template.
 	      frame.setLayout(null);
@@ -96,19 +104,7 @@ public class MainWindow implements Observer {
 	      viewer.setBounds(0, 0, width, height);
 		  viewer.setBackground(new Color(255,255,255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
 		  viewer.setVisible(false);   // this will become visible after you press the key.
-
-	        //loading background image 
-	        File BackroundToLoad = new File(gameUtil.getMenuBg());  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-			try {
-				 BufferedImage myPicture = ImageIO.read(BackroundToLoad);
-				 BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-				 BackgroundImageForStartMenu.setSize(width,height);
-				 frame.add(BackgroundImageForStartMenu);
-			}  catch (IOException e) { 
-				e.printStackTrace();
-			}
-			SetLevelButton();
-	       frame.setVisible(true);
+		SetMenuPage();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -127,7 +123,7 @@ public class MainWindow implements Observer {
 				gameloop();
 			}
 			//UNIT test to see if framerate matches 
-		 UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS);
+		    //UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS);
 		}
 	}
 
@@ -136,79 +132,118 @@ public class MainWindow implements Observer {
 		// GAMELOOP
 		// controller input  will happen on its own thread
 		// So no need to call it explicitly
-		// model update   
+		// model update
+
 		model.gamelogic();
-		// view update 
 		viewer.updateview();
-		// Both these calls could be setup as  a thread but we want to simplify the game logic for you.
+//		long startTime = System.currentTimeMillis();
+//		model.gamelogic();
+//		long endTime = System.currentTimeMillis();
+//		long time = endTime - startTime;
+//		System.out.println("model.gamelogic(): " + time);
 	}
 
 	void SetMenuPage()
 	{
-		System.out.println("go back to menu");
+		//loading background image
+		File BackroundToLoad = new File(gameUtil.getMenuBg());  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
+			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
+			BackgroundImageForStartMenu.setSize(width,height);
+			frame.add(BackgroundImageForStartMenu);
+		}  catch (IOException e) {
+			e.printStackTrace();
+		}
+		SetLevelButton();
+		frame.setVisible(true);
 	}
 
 	void SetGameOverPage()
 	{
-		System.out.println("game over");
+
+	}
+
+	void SaveGame()
+	{
+		save.SaveGame(model);
+		startGame=false;
 	}
 
 	void SetLevelButton() {
-
-		JButton loadBtn = new JButton("Continue");
+		JButton loadBtn = new JButton(save.getLevel()>1 ? "Continue" : "New Game");
+		loadBtn.setBounds(260, 240, 120, 40);
+		JButton level1Btn = new JButton("LEVEL 1");
+		level1Btn.setBounds(110, 300, 120, 40);
+		JButton level2Btn = new JButton("LEVEL 2");
+		level2Btn.setBounds(260, 300, 120, 40);
+		JButton level3Btn = new JButton("LEVEL 3");
+		level3Btn.setBounds(410, 300, 120, 40);
+		level1Btn.setVisible(true);
+		level2Btn.setVisible(true);
+		level3Btn.setVisible(true);
 		loadBtn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				loadBtn.setVisible(false);
+				level1Btn.setVisible(false);
+				level2Btn.setVisible(false);
+				level3Btn.setVisible(false);
 				try {
-					ContinueBtnOnClick();
+					LevelBtnOnClick();
 				} catch (Exception ex) {
 					throw new RuntimeException(ex);
 				}
 			}});
-		loadBtn.setBounds(300, 240, 150, 40);
 
-		JButton level1Btn = new JButton("LEVEL 1");
 		level1Btn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(save.getLevel()!=1)return;
+				loadBtn.setVisible(false);
 				level1Btn.setVisible(false);
+				level2Btn.setVisible(false);
+				level3Btn.setVisible(false);
 				try {
-					LevelBtnOnClick(1);
+					LevelBtnOnClick();
 				} catch (Exception ex) {
 					throw new RuntimeException(ex);
 				}
 			}});
-		level1Btn.setBounds(120, 300, 150, 40);
 
-		JButton level2Btn = new JButton("LEVEL 2");
 		level2Btn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(save.getLevel()!=2)return;
+				loadBtn.setVisible(false);
+				level1Btn.setVisible(false);
 				level2Btn.setVisible(false);
+				level3Btn.setVisible(false);
 				try {
-					LevelBtnOnClick(2);
+					LevelBtnOnClick();
 				} catch (Exception ex) {
 					throw new RuntimeException(ex);
 				}
 			}});
-		level2Btn.setBounds(300, 300, 150, 40);
 
-		JButton level3Btn = new JButton("LEVEL 3");
 		level3Btn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(save.getLevel()!=3)return;
+				loadBtn.setVisible(false);
+				level1Btn.setVisible(false);
+				level2Btn.setVisible(false);
 				level3Btn.setVisible(false);
 				try {
-					LevelBtnOnClick(3);
+					LevelBtnOnClick();
 				} catch (Exception ex) {
 					throw new RuntimeException(ex);
 				}
 			}});
-		level3Btn.setBounds(480, 300, 150, 40);
 
 		frame.add(loadBtn);
 		frame.add(level1Btn);
@@ -216,20 +251,12 @@ public class MainWindow implements Observer {
 		frame.add(level3Btn);
 	}
 
-	void LevelBtnOnClick(int level) throws Exception {
+	void LevelBtnOnClick() {
 		BackgroundImageForStartMenu.setVisible(false);
 		viewer.setVisible(true);
 		viewer.addKeyListener(Controller);    //adding the controller to the Canvas
-		viewer.requestFocusInWindow();   // making sure that the Canvas is in focus so keyboard input will be taking in .
-		model.setLevel(level);
+		viewer.requestFocusInWindow();
 		startGame=true;
-	}
-
-	void ContinueBtnOnClick() throws Exception {
-		Save gamesave = new Save(model);
-		int level = gamesave.getLevel();
-		model = new Model(gamesave.getPlayerOne(),gamesave.getPlayerTwo(),level);
-
 	}
 }
 

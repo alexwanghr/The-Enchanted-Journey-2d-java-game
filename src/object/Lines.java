@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 
 public class Lines {
-    public String[] line=null;
     public ArrayList<String> stringList = new ArrayList<String>();
     private GameUtil pathutil = GameUtil.getInstance();
 
@@ -43,5 +42,6 @@ public class Lines {
             return "\"Don't be afraid of the dragon. She may look scary, but she has a kind heart.\"";
         }
     }
+
 
 }

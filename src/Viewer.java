@@ -1,3 +1,6 @@
+import com.journaldev.design.observer.EventType;
+import com.journaldev.design.observer.Observer;
+import com.journaldev.design.observer.Subject;
 import object.*;
 import util.GameUtil;
 
@@ -39,13 +42,14 @@ SOFTWARE.
  
  * Credits: Kelly Charles (2020)
  */ 
-public class Viewer extends JPanel{
+public class Viewer extends JPanel implements Observer {
 	private long CurrentAnimationTime= 0;
 	private static Model model;
 	private GameUtil gameUtil = GameUtil.getInstance();
 	 
 	public Viewer(Model world) {
 		model = world;
+		subject = world;
 		// TODO Auto-generated constructor stub
 	}
 
@@ -68,22 +72,16 @@ public class Viewer extends JPanel{
 		this.repaint();
 		// TODO Auto-generated method stub
 	}
-
-    boolean showTips;
-	public void showTips()
-	{
-        showTips=true;
-	}
-
-    public void closeTips()
-    {
-        showTips=false;
-    }
-	
 	
 	public void paintComponent(Graphics g) {
 
 		super.paintComponent(g);
+
+		if(showGameEnd)
+		{
+			drawGameEnd(g);
+			return;
+		}
 		CurrentAnimationTime++; // runs animation time step
 
 		drawBackground(g);
@@ -102,11 +100,22 @@ public class Viewer extends JPanel{
 		{
 			drawGate(gate,g);
 		}
+		Boss boss = model.getBoss();
+		if(boss!=null && (int)boss.getCentre().getX()<gameUtil.getWindowWidth())
+		{
+			drawBoss(boss,g);
+		}
 
 		if(showTips)
 		{
 			if(model.getHitEnemy()!=null) {
 				drawTips(model.getHitEnemy(),g);
+			}
+		}
+		if(showBossTips)
+		{
+			if(model.getBoss()!=null) {
+				drawBossTips(g);
 			}
 		}
 	}
@@ -277,7 +286,24 @@ public class Viewer extends JPanel{
 		}
 	}
 
-    private void drawTips(Enemy enemy,Graphics g)
+	private void drawBoss(Boss boss,Graphics g)
+	{
+		File file = new File(boss.getTexture());
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			Image myImage = ImageIO.read(file);
+			int x = (int) boss.getCentre().getX();
+			int y = (int) boss.getCentre().getY();
+			int w = boss.getWidth();
+			int h = boss.getHeight();
+			g.drawImage(myImage, x, y, x + w, y + h, null);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void drawTips(Enemy enemy,Graphics g)
     {
         File file = new File(gameUtil.getPath("dialog"));
         String line = enemy.getLine();
@@ -291,8 +317,51 @@ public class Viewer extends JPanel{
             e.printStackTrace();
         }
     }
-	 
 
+	private void drawBossTips(Graphics g)
+	{
+		File file = new File(gameUtil.getPath("dialog"));
+		Boss boss = model.getBoss();
+		try {
+			Image myImage = ImageIO.read(file);
+			g.drawImage(myImage, 0, 0, gameUtil.getWindowWidth(), gameUtil.getWindowHeight(), null);
+			g.drawString(boss.getLine(),60,350);
+			g.drawString("press Space to continue",230,430);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void drawGameEnd(Graphics g)
+	{
+		drawBackground(g);
+		g.drawString("Player 1 Score =  "+ model.getScore()[0],120,220);
+		g.drawString("Player 2 Score =  "+ model.getScore()[1],120,240);
+		g.drawString("Congratulations! You have rescued the princess!",200,400);
+	}
+
+
+	private Subject subject;
+	@Override
+	public void update() {
+		EventType msg = (EventType) subject.getUpdate(this);
+		switch(msg)
+		{
+			case GAME_END -> showGameEnd=true;
+			case SHOW_TIP -> showTips=true;
+			case CLOSE_TIP -> showTips=false;
+			case HIT_BOSS -> showBossTips=true;
+		}
+	}
+
+	private boolean showTips;
+	private boolean showGameEnd;
+	private boolean showBossTips;
+	@Override
+	public void setSubject(Subject sub) {
+		subject = model;
+	}
 }
 
 

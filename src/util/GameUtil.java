@@ -44,6 +44,11 @@ public class GameUtil {
 		return "res/line.txt";
 	}
 
+	public String getBossLine()
+	{
+		return "res/bossline.txt";
+	}
+
 	public String getPath(String name)
 	{
 		return "res/"+ name +".png";

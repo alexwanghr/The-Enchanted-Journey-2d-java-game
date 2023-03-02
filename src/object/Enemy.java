@@ -17,7 +17,7 @@ public class Enemy extends GameObject {
         this.life=1;
         this.tag = tag;
         this.score = 50;
-        if(Math.random()>0.2)
+        if(Math.random()>0.7)
         {
             this.hasTip = true;
         }
