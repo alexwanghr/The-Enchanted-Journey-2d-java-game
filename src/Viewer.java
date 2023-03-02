@@ -9,12 +9,8 @@ import java.awt.Image;
 import java.awt.LayoutManager;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
-
 
 /*
  * Created by Abraham Campbell on 15/01/2020.

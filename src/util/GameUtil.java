@@ -72,6 +72,11 @@ public class GameUtil {
 	{
 		return "res/save.txt";
 	}
+
+	public String getMusic(String name)
+	{
+		return "res/music/"+name+".wav";
+	}
 	public static GameUtil getInstance() {
 		// TODO Auto-generated method stub
 		return instance;
