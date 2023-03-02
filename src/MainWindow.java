@@ -82,8 +82,17 @@ public class MainWindow implements Observer {
 	}
 
 	 private static GameUtil gameUtil= new GameUtil();
-	 private static Viewer viewer = new Viewer(model);
-	 private KeyListener Controller =new Controller();
+	 private static Viewer viewer;
+
+	static {
+		try {
+			viewer = new Viewer(model);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private KeyListener Controller =new Controller();
 	 private int width;
 	 private int height;
 	 private static int TargetFPS = 100;
@@ -111,11 +120,12 @@ public class MainWindow implements Observer {
 		while(true)   //not nice but remember we do just want to keep looping till the end.  // this could be replaced by a thread but again we want to keep things simple 
 		{ 
 			//swing has timer class to help us time this but I'm writing my own, you can of course use the timer, but I want to set FPS and display it 
-			int TimeBetweenFrames =  500 / TargetFPS;
+			int TimeBetweenFrames =  800 / TargetFPS;
 			long FrameCheck = System.currentTimeMillis() + (long) TimeBetweenFrames;
 			
 			//wait till next time step
-			Thread.sleep(TimeBetweenFrames);
+			//Thread.sleep(TimeBetweenFrames);
+			while (FrameCheck > System.currentTimeMillis()){}
 
 			if(startGame)
 			{
@@ -139,6 +149,12 @@ public class MainWindow implements Observer {
 //		long endTime = System.currentTimeMillis();
 //		long time = endTime - startTime;
 //		System.out.println("model.gamelogic(): " + time);
+//
+//		startTime = System.currentTimeMillis();
+//		viewer.updateview();
+//		endTime = System.currentTimeMillis();
+//		time = endTime - startTime;
+//		System.out.println("viewer.updateview(): " + time);
 	}
 
 	void SetMenuPage()

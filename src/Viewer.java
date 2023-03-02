@@ -42,11 +42,19 @@ public class Viewer extends JPanel implements Observer {
 	private long CurrentAnimationTime= 0;
 	private static Model model;
 	private GameUtil gameUtil = GameUtil.getInstance();
-	 
-	public Viewer(Model world) {
+
+	private Image grass_L;
+	private Image grass_T;
+	private Image grass_R;
+	private Image grass_Img;
+
+	public Viewer(Model world) throws IOException {
 		model = world;
 		subject = world;
-		// TODO Auto-generated constructor stub
+		grass_L = gameUtil.getGrassImage("grass_L");
+		grass_T = gameUtil.getGrassImage("grass_T");
+		grass_R = gameUtil.getGrassImage("grass_R");
+		grass_Img = gameUtil.getGrassImage("grass");
 	}
 
 	public Viewer(LayoutManager layout) {
@@ -159,21 +167,21 @@ public class Viewer extends JPanel implements Observer {
     }
 
 	private void drawGrass(Grass grass,Graphics g) {
-		String texture = grass.getTexture();
-		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-		try {
-			Image myImage = ImageIO.read(TextureToLoad);
-			int x = (int)grass.getCentre().getX();
-			int y = (int)grass.getCentre().getY();
-			int w = grass.getWidth();
-			int h = grass.getHeight();
-			g.drawImage(myImage, x,y, x+w, y+h, 0,
-					0, w, h, null);
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+//		String texture = grass.getTexture();
+//		File TextureToLoad = new File(texture);  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		//			Image myImage = ImageIO.read(TextureToLoad);
+		int x = (int)grass.getCentre().getX();
+		int y = (int)grass.getCentre().getY();
+		int w = grass.getWidth();
+		int h = grass.getHeight();
+		switch(grass.getTag())
+		{
+			case grass_L -> g.drawImage(grass_L, x,y, w, h,null);
+			case grass_R -> g.drawImage(grass_R, x,y, w, h,null);
+			case grass_T -> g.drawImage(grass_T, x,y, w, h,null);
+			case grass -> g.drawImage(grass_Img, x,y, w, h,null);
 		}
+
 	}
 
 	private void drawBullet(Bullet bullet, Graphics g)

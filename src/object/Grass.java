@@ -31,4 +31,14 @@ public class Grass extends GameObject {
                 break;
         }
     }
+
+    @Override
+    public String getTexture() {
+        return super.getTexture();
+    }
+
+    public ObjectTag getTag()
+    {
+        return this.tag;
+    }
 }

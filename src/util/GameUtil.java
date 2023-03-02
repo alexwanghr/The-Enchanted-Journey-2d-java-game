@@ -1,5 +1,9 @@
 package util;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 
@@ -77,6 +81,18 @@ public class GameUtil {
 	{
 		return "res/music/"+name+".wav";
 	}
+
+	public Image getGrassImage(String type) throws IOException {
+		File TextureToLoad = new File(getGrassPath(type));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			return ImageIO.read(TextureToLoad);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static GameUtil getInstance() {
 		// TODO Auto-generated method stub
 		return instance;
