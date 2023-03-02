@@ -90,6 +90,7 @@ public class Model implements Subject {
 		notifyObservers();
 	}
 
+	 private Save save;
 	 private Viewer viewer;
 	 private int level=1;
 	 private float moveSpeed = 0.8f;
@@ -117,6 +118,7 @@ public class Model implements Subject {
 
 	public Model(Save save) throws Exception {
 		this.observers=new ArrayList<>();
+		this.save = save;
 		PlayerList.clear();
 		EnemiesList.clear();
 		GrassList.clear();
@@ -363,6 +365,10 @@ public class Model implements Subject {
 		{
 			player.changeLife(-1);
 			EnemiesList.remove(enemy);
+			if(player.getLife()==0)
+			{
+				PlayerList.remove(player);
+			}
 			if(PlayerOne.getLife()==0 && PlayerTwo.getLife()==0)
 			{
 				GameOver();
@@ -371,9 +377,9 @@ public class Model implements Subject {
 	}
 
 	void PlayerHitGate() {
-		hitEnemyStop =true;
 		level+=1;
-		postMessage(EventType.SAVE_GAME);
+		save.SaveGame(this);
+		postMessage(EventType.GO_TO_MENU);
 	}
 
 	void PlayerHitItem(Player player, Item item)
@@ -385,8 +391,7 @@ public class Model implements Subject {
 	void PlayerHitBoss() throws Exception {
 		hitBossStop =true;
 		level+=1;
-		Save gamesave = new Save();
-		gamesave.SaveGame(this);
+		save.SaveGame(this);
 		postMessage(EventType.HIT_BOSS);
 	}
 
@@ -493,13 +498,19 @@ public class Model implements Subject {
 
 	void GameOver()
 	{
-		hitEnemyStop =true;
 		postMessage(EventType.GAME_OVER);
 	}
 
 	public Player getPlayer(int id) {
-		return PlayerList.get(id-1);
+		if(id==1)
+			return PlayerOne;
+		return PlayerTwo;
 	}
+
+	public CopyOnWriteArrayList<Player> getPlayerList() {
+		return PlayerList;
+	}
+
 	public Boss getBoss() {
 		return boss;
 	}
@@ -522,6 +533,12 @@ public class Model implements Subject {
 	public int[] getScore() {
 		int score1 = PlayerOne.getPlayerScore();
 		int score2 = PlayerTwo.getPlayerScore();
+		return new int[]{score1,score2};
+	}
+
+	public int[] getLife() {
+		int score1 = PlayerOne.getLife();
+		int score2 = PlayerTwo.getLife();
 		return new int[]{score1,score2};
 	}
 

@@ -85,9 +85,7 @@ public class Viewer extends JPanel implements Observer {
 		CurrentAnimationTime++; // runs animation time step
 
 		drawBackground(g);
-		if(model.getPlayer(1).getLife()>0)drawPlayer(model.getPlayer(1),g);
-		if(model.getPlayer(2).getLife()>0)drawPlayer(model.getPlayer(2),g);
-
+		model.getPlayerList().forEach((temp) -> {drawPlayer(temp,g);});
 		model.getEnemies().forEach((temp) -> {drawEnemies(temp,g);});
 		model.getBullets().forEach((temp) -> {drawBullet(temp,g);});
         model.getItems().forEach((temp) -> {drawItems(temp,g);});
@@ -238,7 +236,7 @@ public class Viewer extends JPanel implements Observer {
 	{
 		File heartT = new File(gameUtil.getHeartPath(true));
 		File heartF = new File(gameUtil.getHeartPath(false));
-		int life = model.getPlayer(1).getLife();
+		int life = model.getLife()[0];
 		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			for(int i=0; i<3; i++)
@@ -249,17 +247,17 @@ public class Viewer extends JPanel implements Observer {
 				g.drawImage(myImage, x, y, 25, 25, null);
 			}
 
-			life = model.getPlayer(2).getLife();
+			life = model.getLife()[1];
 			for(int i=0; i<3; i++)
 			{
 				Image myImage = ImageIO.read((i>life-1)?heartF:heartT);
-				int x = gameUtil.getWindowWidth()+(i-3)*25;
+				int x = gameUtil.getWindowWidth()+(i-4)*25;
 				int y = 0;
 				g.drawImage(myImage, x, y, 25, 25, null);
 			}
 
 			g.drawString("Player 1 Score =  "+ model.getScore()[0],6,40);
-			g.drawString("Player 2 Score =  "+ model.getScore()[1],gameUtil.getWindowWidth()-120,40);
+			g.drawString("Player 2 Score =  "+ model.getScore()[1],gameUtil.getWindowWidth()-130,40);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -34,11 +34,6 @@ public class GameUtil {
 		return "res/bg"+ level +".png";
 	}
 
-	public String getMenuBg()
-	{
-		return "res/bg.png";
-	}
-
 	public String getLine()
 	{
 		return "res/line.txt";

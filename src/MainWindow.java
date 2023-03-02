@@ -58,9 +58,8 @@ public class MainWindow implements Observer {
 		EventType msg = (EventType) subject.getUpdate(this);
 		switch(msg)
 		{
-			case GAME_OVER -> SetGameOverPage();
 			case GO_TO_MENU -> SetMenuPage();
-			case SAVE_GAME -> SaveGame();
+			case GAME_OVER -> SetGameOverPage();
 		}
 	}
 
@@ -133,7 +132,6 @@ public class MainWindow implements Observer {
 		// controller input  will happen on its own thread
 		// So no need to call it explicitly
 		// model update
-
 		model.gamelogic();
 		viewer.updateview();
 //		long startTime = System.currentTimeMillis();
@@ -145,8 +143,10 @@ public class MainWindow implements Observer {
 
 	void SetMenuPage()
 	{
+		startGame = false;
+		viewer.setVisible(false);
 		//loading background image
-		File BackroundToLoad = new File(gameUtil.getMenuBg());  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		File BackroundToLoad = new File(gameUtil.getPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
 			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
@@ -161,13 +161,35 @@ public class MainWindow implements Observer {
 
 	void SetGameOverPage()
 	{
+		startGame = false;
+		viewer.setVisible(false);
 
-	}
+		File BackroundToLoad = new File(gameUtil.getPath("gameover"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
+			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
+			BackgroundImageForStartMenu.setSize(width,height);
+			frame.add(BackgroundImageForStartMenu);
+		}  catch (IOException e) {
+			e.printStackTrace();
+		}
 
-	void SaveGame()
-	{
-		save.SaveGame(model);
-		startGame=false;
+		JButton loadBtn = new JButton(save.getLevel()>1 ? "Continue" : "New Game");
+		loadBtn.setBounds(260, 240, 120, 40);
+		loadBtn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadBtn.setVisible(false);
+				try {
+					LevelBtnOnClick();
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+
+		frame.add(loadBtn);
+		frame.setVisible(true);
 	}
 
 	void SetLevelButton() {

@@ -19,6 +19,9 @@ https://opengameart.org/content/sky-background
 Heart
 https://opengameart.org/content/pixel-hearts
 
+IslandBG
+https://opengameart.org/content/bg-layers
+
 --------------------------------CODE------------------------------------------
 Observer Design Pattern in Java
 https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java

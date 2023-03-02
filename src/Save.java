@@ -97,7 +97,7 @@ public class Save {
         }
         else
         {
-            playerTwo = new Player(pathutil.getPlayerPath(1),
+            playerTwo = new Player(pathutil.getPlayerPath(2),
                     new Point3f(pathutil.getWindowWidth() / 2-50, 220, 0)
                     , life, playerScore);
         }

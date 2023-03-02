@@ -8,7 +8,6 @@ public enum EventType {
     GAME_OVER,
     HIT_BOSS,
     GAME_END,
-    SAVE_GAME,
 
 
 }
