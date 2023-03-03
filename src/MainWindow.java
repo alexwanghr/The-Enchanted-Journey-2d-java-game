@@ -124,8 +124,8 @@ public class MainWindow implements Observer {
 			long FrameCheck = System.currentTimeMillis() + (long) TimeBetweenFrames;
 			
 			//wait till next time step
-			//Thread.sleep(TimeBetweenFrames);
-			while (FrameCheck > System.currentTimeMillis()){}
+			Thread.sleep(TimeBetweenFrames);
+			//while (FrameCheck > System.currentTimeMillis()){}
 
 			if(startGame)
 			{
@@ -144,17 +144,6 @@ public class MainWindow implements Observer {
 		// model update
 		model.gamelogic();
 		viewer.updateview();
-//		long startTime = System.currentTimeMillis();
-//		model.gamelogic();
-//		long endTime = System.currentTimeMillis();
-//		long time = endTime - startTime;
-//		System.out.println("model.gamelogic(): " + time);
-//
-//		startTime = System.currentTimeMillis();
-//		viewer.updateview();
-//		endTime = System.currentTimeMillis();
-//		time = endTime - startTime;
-//		System.out.println("viewer.updateview(): " + time);
 	}
 
 	void SetMenuPage()
@@ -217,9 +206,6 @@ public class MainWindow implements Observer {
 		level2Btn.setBounds(260, 300, 120, 40);
 		JButton level3Btn = new JButton("LEVEL 3");
 		level3Btn.setBounds(410, 300, 120, 40);
-		level1Btn.setVisible(true);
-		level2Btn.setVisible(true);
-		level3Btn.setVisible(true);
 		loadBtn.addActionListener(new ActionListener()
 		{
 			@Override

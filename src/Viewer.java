@@ -279,7 +279,7 @@ public class Viewer extends JPanel implements Observer {
 			int y = (int) gate.getCentre().getY();
 			int w = gate.getWidth();
 			int h = gate.getHeight();
-			int animationNumber = (int) (CurrentAnimationTime % 40) / 10;
+			int animationNumber = (int) (CurrentAnimationTime % 4) / 10;
 			g.drawImage(myImage, x, y, x + w, y + h, animationNumber * w,
 					0, (animationNumber + 1) * w, h, null);
 		} catch (IOException e) {

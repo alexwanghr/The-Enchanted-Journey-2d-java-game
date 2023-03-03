@@ -33,6 +33,7 @@ public class Point3f {
 	private float z;
 	
 	private int boundary=600;
+	private static GameUtil gameUtil= new GameUtil();
 	
 	
 	// default constructor
@@ -94,24 +95,19 @@ public class Point3f {
 	 //Use for direct application of a Vector 
 	public void ApplyVector(Vector3f vector) { 
 		 setX(CheckBoundary(this.getX()+vector.getX()));
-		 setY(CheckBoundary(this.getY()-vector.getY()));
+		 setY(CheckBoundaryY(this.getY()-vector.getY()));
 		 setZ(CheckBoundary(this.getZ()-vector.getZ())); 
-	}
-
-	public void ApplyVectorWithBoundaryY(Vector3f vector, int[] bound) {
-		float y = this.getY()-vector.getY();
-		int min = bound[0];
-		int max = bound[1];
-		if(y<min) y=min+32;
-		if(y>max) y=max-32;
-		setX(this.getX()+vector.getX());
-		setY(y);
-		setZ(this.getZ()-vector.getZ());
 	}
 
 	private float CheckBoundary(float f) {
 //		if (f<0) f=0.0f;
 //		if (f>boundary)f=(float) boundary;
+		return f;
+	}
+
+	private float CheckBoundaryY(float f) {
+		if (f<0) f=0.0f;
+		if (f> gameUtil.getWindowHeight())f=(float) gameUtil.getWindowHeight();
 		return f;
 	}
 

@@ -93,8 +93,7 @@ public class Model implements Subject {
 	 private Save save;
 	 private Viewer viewer;
 	 private int level=1;
-	 private float moveSpeed = 0.8f;
-	 private float playerSpeed = 0.9f;
+	 private float moveSpeed = 0.7f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private Controller controller = Controller.getInstance();
@@ -251,13 +250,18 @@ public class Model implements Subject {
 		return getDistanceX(g1,g2)< g1.getWidth() && getDistanceY(g1,g2)< g1.getHeight();
 	}
 
+	private boolean isHit(GameObject g1, GameObject g2, int distance)
+	{
+		return getDistanceX(g1,g2)< distance && getDistanceY(g1,g2)< distance;
+	}
+
 	private void checkHitLogic() throws Exception {
 		//this is a way to increment across the array list data structure
 		//see if they hit anything 
 		//using enhanced for-loop style as it makes it a lot easier both code wise and reading wise too
 		for (Player player : PlayerList)
 		{
-			if (gate!=null && getDistanceX(player,gate)<2)
+			if (gate!=null && getDistanceX(player,gate)<3)
 			{
 				PlayerHitGate();
 			}
@@ -268,7 +272,7 @@ public class Model implements Subject {
 
 			for (Enemy enemy : EnemiesList)
 			{
-				if (isHit(player,enemy))
+				if (isHit(player,enemy,16))
 				{
 					PlayerHitEnemy(player,enemy);
 				}
@@ -276,7 +280,7 @@ public class Model implements Subject {
 
 			for (Item item : ItemsList)
 			{
-				if (isHit(player,item))
+				if (isHit(player,item,16))
 				{
 					PlayerHitItem(player,item);
 				}
@@ -376,7 +380,7 @@ public class Model implements Subject {
 		}
 	}
 
-	void PlayerHitGate() {
+	void PlayerHitGate() throws InterruptedException {
 		level+=1;
 		save.SaveGame(this);
 		postMessage(EventType.GO_TO_MENU);
@@ -412,7 +416,7 @@ public class Model implements Subject {
 		for (GameObject temp : GrassList)
 		{
 			temp.getCentre().ApplyVector(new Vector3f(-moveSpeed,0,0));
-			if (temp.getCentre().getX()<=-20)  // current boundary need to pass value to model
+			if (temp.getCentre().getX()<=-16)  // current boundary need to pass value to model
 			{
 				GrassList.remove(temp);
 			}
@@ -434,6 +438,9 @@ public class Model implements Subject {
 		// smoother animation is possible if we make a target position
 		// done but may try to change things for students
 		//check for movement and if you fired a bullet
+		Grass grass_top=getGrassOnTop((int)PlayerOne.getCentre().getX(), (int)PlayerOne.getCentre().getY());
+		Grass grass_bottom=getGrassOnBottom((int)PlayerOne.getCentre().getX(), (int)PlayerOne.getCentre().getY());
+
 		if(PlayerOne.getLife()>0) {
 			if (Controller.getInstance().isKeyShiftPressed()) {
 				CreateBullet(1);
@@ -441,11 +448,13 @@ public class Model implements Subject {
 			}
 
 			if (Controller.getInstance().isKeyWPressed()) {
-				PlayerOne.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, playerSpeed, 0),GetPlayerBoundary());
+				if(grass_top!=null && getDistanceY(grass_top,PlayerOne)<30) return;
+				PlayerOne.getCentre().ApplyVector(new Vector3f(0, moveSpeed, 0));
 			}
 
 			if (Controller.getInstance().isKeySPressed()) {
-				PlayerOne.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, -playerSpeed, 0),GetPlayerBoundary());
+				if(grass_bottom!=null && getDistanceY(grass_bottom,PlayerOne)<60) return;
+				PlayerOne.getCentre().ApplyVector(new Vector3f(0, -moveSpeed, 0));
 			}
 		}
 
@@ -456,35 +465,15 @@ public class Model implements Subject {
 			}
 
 			if (Controller.getInstance().isKeyUpPressed()) {
-				PlayerTwo.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, playerSpeed, 0),GetPlayerBoundary());
-			}
+				if(grass_top!=null && getDistanceY(grass_top,PlayerTwo)<30) return;
+				PlayerTwo.getCentre().ApplyVector(new Vector3f(0, moveSpeed, 0));}
 
 			if (Controller.getInstance().isKeyDownPressed()) {
-				PlayerTwo.getCentre().ApplyVectorWithBoundaryY(new Vector3f(0, -playerSpeed, 0),GetPlayerBoundary());
-			}
+				if(grass_bottom!=null && getDistanceY(grass_bottom,PlayerTwo)<60) return;
+				PlayerTwo.getCentre().ApplyVector(new Vector3f(0, -moveSpeed, 0));}
 		}
 	}
 
-	int[] GetPlayerBoundary()
-	{
-		int minY = 0;
-		int maxY = gameUtil.getWindowHeight();
-		for(Grass grass: GrassList)
-		{
-			if(getDistanceX(PlayerOne,grass)<32)
-			{
-				if(grass.getCentre().getY()<gameUtil.getWindowHeight()/2)
-				{
-					minY = (int)grass.getCentre().getY();
-				}
-				if(grass.getCentre().getY()>gameUtil.getWindowHeight()/2)
-				{
-					maxY = (int)grass.getCentre().getY();
-				}
-			}
-		}
-		return new int[]{minY,maxY};
-	}
 	private void CreateBullet(int playerId) {
 		if(playerId==1) {
 			BulletList.add(new Bullet(new Point3f(PlayerOne.getCentre().getX()+PlayerOne.getWidth(),
@@ -494,6 +483,41 @@ public class Model implements Subject {
 			BulletList.add(new Bullet(new Point3f(PlayerTwo.getCentre().getX()+PlayerTwo.getWidth(),
 					PlayerTwo.getCentre().getY()+(PlayerTwo.getHeight()/2), 0.0f), playerId));
 		}
+	}
+
+	Grass getGrassOnTop(int posX,int posY)
+	{
+		float min = 480;
+		Grass grass_top = null;
+		for(Grass grass: GrassList)
+		{
+			if(Math.abs(grass.getCentre().getX()-posX)<16 && grass.getCentre().getY()<posY)
+			{
+				if(Math.abs(grass.getCentre().getY()-posY)<min) {
+					min = Math.abs(grass.getCentre().getY()-posY);
+					grass_top = grass;
+				}
+			}
+		}
+		return grass_top;
+	}
+
+	Grass getGrassOnBottom(int posX,int posY)
+	{
+		float min = 480;
+		Grass grass_bottom = null;
+		for(Grass grass: GrassList)
+		{
+			if(Math.abs(grass.getCentre().getX()-posX)<16 && grass.getCentre().getY()>posY)
+			{
+				if(Math.abs(grass.getCentre().getY()-posY)<min)
+				{
+					min = Math.abs(grass.getCentre().getY()-posY);
+					grass_bottom = grass;
+				}
+			}
+		}
+		return grass_bottom;
 	}
 
 	void GameOver()

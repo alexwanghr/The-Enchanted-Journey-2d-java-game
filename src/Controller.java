@@ -118,7 +118,6 @@ public class Controller implements KeyListener {
 	}
 
 	public boolean isKeySpacePressed() {
-		 if(KeySpacePressed)System.out.println("press space");
 		return KeySpacePressed;
 	}
 
@@ -127,7 +126,6 @@ public class Controller implements KeyListener {
 	}
 
 	public boolean isKeyUpPressed() {
-		if(KeyUpPressed)System.out.println("press up");
 		return KeyUpPressed;
 	}
 
