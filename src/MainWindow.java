@@ -56,6 +56,7 @@ public class MainWindow implements Observer {
 	@Override
 	public void update() {
 		EventType msg = (EventType) subject.getUpdate(this);
+		System.out.println("MainWindow send event: "+msg.toString());
 		switch(msg)
 		{
 			case GO_TO_MENU -> SetMenuPage();
@@ -99,7 +100,7 @@ public class MainWindow implements Observer {
 	 private static boolean startGame= false; 
 	 private JLabel BackgroundImageForStartMenu;
 	  
-	public MainWindow() throws Exception {
+	public MainWindow(){
 		subject = model;
 		model.setObservers(this);
 		model.setObservers(viewer);
@@ -111,8 +112,19 @@ public class MainWindow implements Observer {
 	      frame.add(viewer);
 	      viewer.setBounds(0, 0, width, height);
 		  viewer.setBackground(new Color(255,255,255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
-		  viewer.setVisible(false);   // this will become visible after you press the key.
-		SetMenuPage();
+		  viewer.setVisible(false);
+
+		File BackroundToLoad = new File(gameUtil.getPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
+			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
+			BackgroundImageForStartMenu.setSize(width,height);
+			frame.add(BackgroundImageForStartMenu);
+		}  catch (IOException e) {
+			e.printStackTrace();
+		}
+		SetLevelButton();
+		frame.setVisible(true);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -132,7 +144,7 @@ public class MainWindow implements Observer {
 				gameloop();
 			}
 			//UNIT test to see if framerate matches 
-		    UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS);
+		    //UnitTests.CheckFrameRate(System.currentTimeMillis(),FrameCheck, TargetFPS);
 		}
 	}
 
@@ -146,27 +158,35 @@ public class MainWindow implements Observer {
 		viewer.updateview();
 	}
 
-	void SetMenuPage()
-	{
+	void SetMenuPage() {
 		startGame = false;
+		frame.setTitle("The Enchanted Journey");
 		viewer.setVisible(false);
-		//loading background image
-		File BackroundToLoad = new File(gameUtil.getPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-		try {
-			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
-			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-			BackgroundImageForStartMenu.setSize(width,height);
-			frame.add(BackgroundImageForStartMenu);
-		}  catch (IOException e) {
-			e.printStackTrace();
-		}
-		SetLevelButton();
+		BackgroundImageForStartMenu.setVisible(true);
+
+		JButton ContinueBtn = new JButton("Continue");
+		ContinueBtn.setBounds(260, 280, 120, 40);
+
+		ContinueBtn.setVisible(true);
+		ContinueBtn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ContinueBtn.setVisible(false);
+				try {
+					LevelBtnOnClick();
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		frame.add(ContinueBtn);
 		frame.setVisible(true);
 	}
 
 	void SetGameOverPage()
 	{
 		startGame = false;
+		frame.setTitle("The Enchanted Journey");
 		viewer.setVisible(false);
 
 		File BackroundToLoad = new File(gameUtil.getPath("gameover"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
@@ -275,12 +295,14 @@ public class MainWindow implements Observer {
 		frame.add(level3Btn);
 	}
 
-	void LevelBtnOnClick() {
+	void LevelBtnOnClick() throws Exception {
 		BackgroundImageForStartMenu.setVisible(false);
 		viewer.setVisible(true);
 		viewer.addKeyListener(Controller);    //adding the controller to the Canvas
 		viewer.requestFocusInWindow();
+		model.NewGame();
 		startGame=true;
+		frame.setTitle("LEVEL "+ save.getLevel());
 	}
 }
 

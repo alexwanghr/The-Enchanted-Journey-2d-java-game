@@ -6,6 +6,8 @@ Observer Design Pattern in Java
 https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 */
 
+import java.io.IOException;
+
 public interface Observer {
 
     //method to update the observer, used by subject

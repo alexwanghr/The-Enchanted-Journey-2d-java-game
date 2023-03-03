@@ -337,10 +337,19 @@ public class Viewer extends JPanel implements Observer {
 
 	private void drawGameEnd(Graphics g)
 	{
-		drawBackground(g);
-		g.drawString("Player 1 Score =  "+ model.getScore()[0],120,220);
-		g.drawString("Player 2 Score =  "+ model.getScore()[1],120,240);
-		g.drawString("Congratulations! You have rescued the princess!",200,400);
+		File TextureToLoad = new File(gameUtil.getPath("gameend"));
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			Image myImage = ImageIO.read(TextureToLoad);
+			g.drawImage(myImage, 0,0,gameUtil.getWindowWidth() , gameUtil.getWindowHeight(), null);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		g.drawString("Player 1 Score =  "+ model.getScore()[0],220,320);
+		g.drawString("Player 2 Score =  "+ model.getScore()[1],220,340);
+		//g.drawString("Congratulations! You have rescued the princess!",200,400);
 	}
 
 
@@ -348,6 +357,7 @@ public class Viewer extends JPanel implements Observer {
 	@Override
 	public void update() {
 		EventType msg = (EventType) subject.getUpdate(this);
+		System.out.println("Viewer recieve msg:" + msg.toString());
 		switch(msg)
 		{
 			case GAME_END -> showGameEnd=true;

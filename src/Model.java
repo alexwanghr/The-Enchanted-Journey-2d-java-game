@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -84,16 +85,17 @@ public class Model implements Subject {
 	}
 
 	//method to post message to the topic
-	public void postMessage(EventType msg){
+	public void postMessage(EventType msg) {
 		this.message=msg;
 		this.changed=true;
+		System.out.println("Model send event: "+msg.toString());
 		notifyObservers();
 	}
 
 	 private Save save;
 	 private Viewer viewer;
 	 private int level=1;
-	 private float moveSpeed = 0.7f;
+	 private float moveSpeed = 1.2f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private Controller controller = Controller.getInstance();
@@ -116,7 +118,6 @@ public class Model implements Subject {
 	}
 
 	public Model(Save save) throws Exception {
-		this.observers=new ArrayList<>();
 		this.save = save;
 		PlayerList.clear();
 		EnemiesList.clear();
@@ -133,6 +134,25 @@ public class Model implements Subject {
 
 		level = save.getLevel();
 		GetLine();
+		GetMap(level);
+	}
+
+	public void NewGame() throws Exception {
+		save.ReadSave();
+		PlayerList.clear();
+		EnemiesList.clear();
+		GrassList.clear();
+		ItemsList.clear();
+		BulletList.clear();
+		gate = null;
+		map = null;
+
+		PlayerOne = save.getPlayerOne();
+		PlayerTwo = save.getPlayerTwo();
+		PlayerList.add(PlayerOne);
+		PlayerList.add(PlayerTwo);
+
+		level = save.getLevel();
 		GetMap(level);
 	}
 
@@ -272,7 +292,7 @@ public class Model implements Subject {
 
 			for (Enemy enemy : EnemiesList)
 			{
-				if (isHit(player,enemy,16))
+				if (isHit(player,enemy))
 				{
 					PlayerHitEnemy(player,enemy);
 				}
@@ -280,7 +300,7 @@ public class Model implements Subject {
 
 			for (Item item : ItemsList)
 			{
-				if (isHit(player,item,16))
+				if (isHit(player,item))
 				{
 					PlayerHitItem(player,item);
 				}
@@ -301,7 +321,7 @@ public class Model implements Subject {
 		}
 	}
 
-	private void bulletLogic() {
+	private void bulletLogic() throws IOException {
 		// TODO Auto-generated method stub
 		for (Bullet bullet : BulletList)
 		{
@@ -341,8 +361,7 @@ public class Model implements Subject {
 	}
 
 	private int sum=0;
-	void BulletHitBoss(Bullet bullet)
-	{
+	void BulletHitBoss(Bullet bullet) throws IOException {
 		sum++;
 		BulletList.remove(bullet);
 		getPlayer(bullet.getBelongId()).changeScore((-1)*boss.getPunishscore());
@@ -356,8 +375,7 @@ public class Model implements Subject {
 	{
 		return this.hitEnemy;
 	}
-	void PlayerHitEnemy(Player player, Enemy enemy)
-	{
+	void PlayerHitEnemy(Player player, Enemy enemy) throws IOException {
 		if(enemy.isHasTip())
 		{
 			hitEnemy = enemy;
@@ -380,9 +398,10 @@ public class Model implements Subject {
 		}
 	}
 
-	void PlayerHitGate() throws InterruptedException {
+	void PlayerHitGate() throws IOException {
 		level+=1;
 		save.SaveGame(this);
+		System.out.println("hit gate");
 		postMessage(EventType.GO_TO_MENU);
 	}
 
@@ -394,8 +413,7 @@ public class Model implements Subject {
 
 	void PlayerHitBoss() throws Exception {
 		hitBossStop =true;
-		level+=1;
-		save.SaveGame(this);
+		//save.SaveGame(this);
 		postMessage(EventType.HIT_BOSS);
 	}
 
@@ -520,8 +538,7 @@ public class Model implements Subject {
 		return grass_bottom;
 	}
 
-	void GameOver()
-	{
+	void GameOver() throws IOException {
 		postMessage(EventType.GAME_OVER);
 	}
 

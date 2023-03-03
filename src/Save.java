@@ -14,8 +14,8 @@ public class Save {
     private Model model;
 
     public Save() throws Exception {
-        playerOne = new Player(pathutil.getPlayerPath(1),new Point3f(pathutil.getWindowWidth()/2,200,0));
-        playerTwo = new Player(pathutil.getPlayerPath(2),new Point3f(pathutil.getWindowWidth()/2,240,0));
+        playerOne = new Player(pathutil.getPlayerPath(1),new Point3f(pathutil.getWindowWidth()/2-50,190,0));
+        playerTwo = new Player(pathutil.getPlayerPath(2),new Point3f(pathutil.getWindowWidth()/2-50,210,0));
         ReadSave();
     }
 
@@ -50,8 +50,7 @@ public class Save {
             e.printStackTrace();
         }
     }
-    public void ReadSave() throws Exception
-    {
+    public void ReadSave() throws IOException {
         ArrayList<String> stringList = new ArrayList<String>();
 
         FileInputStream fis = new FileInputStream(pathutil.getSave());
@@ -92,13 +91,13 @@ public class Save {
     {
         if(id==1) {
             playerOne = new Player(pathutil.getPlayerPath(1),
-                    new Point3f(pathutil.getWindowWidth() / 2-50, 200, 0)
+                    new Point3f(pathutil.getWindowWidth() / 2-50, 190, 0)
                     , life, playerScore);
         }
         else
         {
             playerTwo = new Player(pathutil.getPlayerPath(2),
-                    new Point3f(pathutil.getWindowWidth() / 2-50, 220, 0)
+                    new Point3f(pathutil.getWindowWidth() / 2-50, 210, 0)
                     , life, playerScore);
         }
     }
