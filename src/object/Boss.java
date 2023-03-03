@@ -18,7 +18,7 @@ public class Boss extends GameObject {
         this.width=280;
         this.height=240;
         this.centre =centre;
-        this.life=10;
+        this.life=2;
         this.tag = ObjectTag.boss;
         this.punishscore = 100;
         this.textureLocation = pathutil.getPath("boss");
@@ -58,5 +58,10 @@ public class Boss extends GameObject {
 
     public ArrayList<String> getStringList() {
         return stringList;
+    }
+
+    public int getLife()
+    {
+        return this.life;
     }
 }

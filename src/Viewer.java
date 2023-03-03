@@ -279,7 +279,7 @@ public class Viewer extends JPanel implements Observer {
 			int y = (int) gate.getCentre().getY();
 			int w = gate.getWidth();
 			int h = gate.getHeight();
-			int animationNumber = (int) (CurrentAnimationTime % 4) / 10;
+			int animationNumber = (int) (CurrentAnimationTime % 20) / 10;
 			g.drawImage(myImage, x, y, x + w, y + h, animationNumber * w,
 					0, (animationNumber + 1) * w, h, null);
 		} catch (IOException e) {
@@ -331,7 +331,7 @@ public class Viewer extends JPanel implements Observer {
 
 			Image princessImg = ImageIO.read(princess);
 			int animationNumber = (int)(CurrentAnimationTime%30)/10;
-			g.drawImage(princessImg, 280,120, 280+48, 280+64, animationNumber*48,
+			g.drawImage(princessImg, 280,120, 328, 184, animationNumber*48,
 					0, (animationNumber+1)*48, 64, null);
 			g.drawString(boss.getLine(),60,350);
 			g.drawString("press Space to continue",230,430);
@@ -362,7 +362,7 @@ public class Viewer extends JPanel implements Observer {
 	@Override
 	public void update() {
 		EventType msg = (EventType) subject.getUpdate(this);
-		System.out.println("Viewer recieve msg:" + msg.toString());
+		System.out.println("VIEWER RECIEVE MSG:" + msg.toString());
 		switch(msg)
 		{
 			case GAME_WIN -> showGameEnd=true;

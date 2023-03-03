@@ -88,7 +88,7 @@ public class Model implements Subject {
 	public void postMessage(EventType msg) {
 		this.message=msg;
 		this.changed=true;
-		System.out.println("Model send event: "+msg.toString());
+		System.out.println("MODEL SEND MSG: "+msg.toString());
 		notifyObservers();
 	}
 
@@ -101,7 +101,7 @@ public class Model implements Subject {
 	 private Controller controller = Controller.getInstance();
 	 private GameUtil gameUtil = GameUtil.getInstance();
 	 public int [][] map=null;
-	 public Lines lines;
+	 public Lines lines = new Lines();
 	 private Gate gate;
 	 private Boss boss;
 	 private CopyOnWriteArrayList<Player> PlayerList  = new CopyOnWriteArrayList<Player>();
@@ -117,27 +117,12 @@ public class Model implements Subject {
 		this.observers.add(obs);
 	}
 
-	public Model(Save save) throws Exception {
-		this.save = save;
-		PlayerList.clear();
-		EnemiesList.clear();
-		GrassList.clear();
-		ItemsList.clear();
-		BulletList.clear();
-		gate = null;
-		map = null;
-
-		PlayerOne = save.getPlayerOne();
-		PlayerTwo = save.getPlayerTwo();
-		PlayerList.add(PlayerOne);
-		PlayerList.add(PlayerTwo);
-
-		level = save.getLevel();
-		GetLine();
-		GetMap(level);
+	public Model() throws Exception {
+		save = new Save();
+		StartNewGame();
 	}
 
-	public void NewGame() throws Exception {
+	void StartNewGame() throws Exception {
 		save.ReadSave();
 		PlayerList.clear();
 		EnemiesList.clear();
@@ -146,6 +131,8 @@ public class Model implements Subject {
 		BulletList.clear();
 		gate = null;
 		map = null;
+		boss = null;
+		sum = 0;
 
 		PlayerOne = save.getPlayerOne();
 		PlayerTwo = save.getPlayerTwo();
@@ -153,15 +140,11 @@ public class Model implements Subject {
 		PlayerList.add(PlayerTwo);
 
 		level = save.getLevel();
-		GetMap(level);
-	}
-
-	public void GetLine() throws Exception {
-		lines = new Lines();
 		lines.ReadLine();
+		GetMap();
 	}
 
-	public void GetMap(int level) throws Exception {
+	public void GetMap() throws Exception {
 		Map mp = new Map();
 		map = mp.ReadMap(level);
 
@@ -365,7 +348,7 @@ public class Model implements Subject {
 		sum++;
 		BulletList.remove(bullet);
 		getPlayer(bullet.getBelongId()).changeScore((-1)*boss.getPunishscore());
-		if(sum>=10){
+		if(sum>=boss.getLife()){
 			GameOver();
 		}
 	}
@@ -588,6 +571,10 @@ public class Model implements Subject {
 		return this.level;
 	}
 	public Gate getGate() {return this.gate;}
+	public Save getCurrSave()
+	{
+		return this.save;
+	}
 }
 
 

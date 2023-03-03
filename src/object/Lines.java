@@ -18,6 +18,7 @@ public class Lines {
         InputStreamReader isr = new InputStreamReader(fis);
         BufferedReader br = new BufferedReader(isr);
 
+        stringList.clear();
         String str = br.readLine();
         while(str!=null)
         {

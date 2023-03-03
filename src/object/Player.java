@@ -6,9 +6,11 @@ import util.Point3f;
 public class Player extends GameObject {
 
     private int playerScore =0;
+    private int id;
 
-    public Player(String textureLocation, Point3f centre) {
+    public Player(String textureLocation, Point3f centre, int id) {
         hasTextured=true;
+        this.id = id;
         this.textureLocation=textureLocation;
         this.width=48;
         this.height=64;
@@ -17,8 +19,9 @@ public class Player extends GameObject {
         this.tag = ObjectTag.player;
     }
 
-    public Player(String textureLocation, Point3f centre,int life, int playerScore) {
+    public Player(String textureLocation, Point3f centre,int id, int life, int playerScore) {
         hasTextured=true;
+        this.id = id;
         this.textureLocation=textureLocation;
         this.width=48;
         this.height=64;
@@ -61,5 +64,10 @@ public class Player extends GameObject {
     public int getLife()
     {
         return this.life;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Player id:%d, life:%d, score:%d", id,life,playerScore);
     }
 }

@@ -14,9 +14,17 @@ public class Save {
     private Model model;
 
     public Save() throws Exception {
-        playerOne = new Player(pathutil.getPlayerPath(1),new Point3f(pathutil.getWindowWidth()/2-50,190,0));
-        playerTwo = new Player(pathutil.getPlayerPath(2),new Point3f(pathutil.getWindowWidth()/2-50,210,0));
+        playerOne = new Player(pathutil.getPlayerPath(1),new Point3f(pathutil.getWindowWidth()/2-50,190,0),1);
+        playerTwo = new Player(pathutil.getPlayerPath(2),new Point3f(pathutil.getWindowWidth()/2-50,210,0),2);
         ReadSave();
+    }
+
+    public void NewGameSave()
+    {
+        setPlayer(1,3,0,1);
+        setPlayer(2,3,0,1);
+        level = 1;
+        writeFile("id:1,life:3,score:0,level:1\nid:2,life:3,score:0,level:1");
     }
 
     public void SaveGame(Model model)
@@ -45,6 +53,7 @@ public class Save {
             BufferedWriter bw = new BufferedWriter(fileWriter);
             bw.write(data);
             bw.close();
+            System.out.println("SAVE GAME:::LEVEL="+level);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -52,7 +61,6 @@ public class Save {
     }
     public void ReadSave() throws IOException {
         ArrayList<String> stringList = new ArrayList<String>();
-
         FileInputStream fis = new FileInputStream(pathutil.getSave());
         InputStreamReader isr = new InputStreamReader(fis);
         BufferedReader br = new BufferedReader(isr);
@@ -91,11 +99,8 @@ public class Save {
                 }
             }
             setPlayer(playerId,playerLife,playerScore,currLevel);
-            System.out.println(String.format("Read Save: id:%d,life:%d,score:%d,level:%d",
-                    playerId,playerLife,playerScore,currLevel));
+            System.out.println("READ SAVE:::LEVEL="+level +", "+ playerOne.toString() + "," + playerTwo.toString());
         }
-
-
     }
 
     void setPlayer(int id,int life, int playerScore, int currLevel)
@@ -104,13 +109,13 @@ public class Save {
         if(id==1) {
             playerOne = new Player(pathutil.getPlayerPath(1),
                     new Point3f(pathutil.getWindowWidth() / 2-50, 190, 0)
-                    , life, playerScore);
+                    ,1, life, playerScore);
         }
         else
         {
             playerTwo = new Player(pathutil.getPlayerPath(2),
                     new Point3f(pathutil.getWindowWidth() / 2-50, 210, 0)
-                    , life, playerScore);
+                    , 2,life, playerScore);
         }
     }
 

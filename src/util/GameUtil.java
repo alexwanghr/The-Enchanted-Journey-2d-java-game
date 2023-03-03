@@ -30,17 +30,17 @@ public class GameUtil {
 
 	public String getMap(int level)
 	{
-		return "res/map"+ level +".txt";
+		return "res/file/map"+ level +".txt";
 	}
 
 	public String getLine()
 	{
-		return "res/line.txt";
+		return "res/file/line.txt";
 	}
 
 	public String getBossLine()
 	{
-		return "res/bossline.txt";
+		return "res/file/bossline.txt";
 	}
 
 	public String getPath(String name)
@@ -74,7 +74,7 @@ public class GameUtil {
 
 	public String getSave()
 	{
-		return "res/save.txt";
+		return "res/file/save.txt";
 	}
 
 	public String getMusic(String name)

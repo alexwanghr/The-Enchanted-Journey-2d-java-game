@@ -16,7 +16,6 @@ import com.journaldev.design.observer.EventType;
 import com.journaldev.design.observer.Observer;
 import com.journaldev.design.observer.Subject;
 import util.GameUtil;
-import util.UnitTests;
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -56,7 +55,7 @@ public class MainWindow implements Observer {
 	@Override
 	public void update() {
 		EventType msg = (EventType) subject.getUpdate(this);
-		System.out.println("MainWindow send event: "+msg.toString());
+		System.out.println("MAINWINDOW RECIEVE MSG: "+msg.toString());
 		switch(msg)
 		{
 			case GO_TO_MENU -> SetMenuPage();
@@ -70,13 +69,11 @@ public class MainWindow implements Observer {
 	}
 	 private static JFrame frame = new JFrame("The Enchanted Journey");
 
-	 private static Save save;
 	 private static Model model;
 
 	 static{
 		try {
-			save = new Save();
-			model = new Model(save);
+			model = new Model();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -98,8 +95,11 @@ public class MainWindow implements Observer {
 	 private int height;
 	 private static int TargetFPS = 100;
 	 private static boolean startGame= false; 
-	 private JLabel BackgroundImageForStartMenu;
-	  
+	 private JLabel MenuLabel;
+	 private JLabel GameOverLabel;
+	 private JButton NewGameBtn;
+	 private JButton ContinueBtn;
+
 	public MainWindow(){
 		subject = model;
 		model.setObservers(this);
@@ -114,16 +114,54 @@ public class MainWindow implements Observer {
 		  viewer.setBackground(new Color(255,255,255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
 		  viewer.setVisible(false);
 
-		File BackroundToLoad = new File(gameUtil.getBgPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		File menuFile = new File(gameUtil.getBgPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		File gameoverFile = new File(gameUtil.getBgPath("over"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
-			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
-			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-			BackgroundImageForStartMenu.setSize(width,height);
-			frame.add(BackgroundImageForStartMenu);
+			BufferedImage myPicture = ImageIO.read(menuFile);
+			MenuLabel = new JLabel(new ImageIcon(myPicture));
+			MenuLabel.setSize(width,height);
+			frame.add(MenuLabel);
+
+			myPicture = ImageIO.read(gameoverFile);
+			GameOverLabel = new JLabel(new ImageIcon(myPicture));
+			GameOverLabel.setSize(width,height);
+			frame.add(GameOverLabel);
 		}  catch (IOException e) {
 			e.printStackTrace();
 		}
-		SetLevelButton();
+
+		NewGameBtn = new JButton("New Game");
+		NewGameBtn.setBounds(190, 240, 120, 40);
+		ContinueBtn = new JButton("Continue");
+		ContinueBtn.setBounds(330, 240, 120, 40);
+		NewGameBtn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				NewGameBtn.setVisible(false);
+				ContinueBtn.setVisible(false);
+				try {
+					NewGameBtnOnClick();
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		ContinueBtn.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ContinueBtn.setVisible(false);
+				NewGameBtn.setVisible(false);
+				try {
+					LevelBtnOnClick();
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+			}});
+		//SetLevelButton();
+		frame.add(NewGameBtn);
+		frame.add(ContinueBtn);
+		GameOverLabel.setVisible(false);
 		frame.setVisible(true);
 	}
 
@@ -162,91 +200,37 @@ public class MainWindow implements Observer {
 		startGame = false;
 		frame.setTitle("The Enchanted Journey");
 		viewer.setVisible(false);
-		BackgroundImageForStartMenu.setVisible(true);
-
-		JButton ContinueBtn = new JButton("Continue");
-		ContinueBtn.setBounds(260, 280, 120, 40);
-
-		ContinueBtn.setVisible(true);
-		ContinueBtn.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ContinueBtn.setVisible(false);
-				try {
-					LevelBtnOnClick();
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-			}});
-		frame.add(ContinueBtn);
+		MenuLabel.setVisible(true);
 		frame.setVisible(true);
+		ContinueBtn.setVisible(true);
+		ContinueBtn.requestFocus();
 	}
 
 	void SetGameOverPage()
 	{
 		startGame = false;
-		frame.setTitle("The Enchanted Journey");
+		frame.setTitle("Game Over");
 		viewer.setVisible(false);
-
-		File BackroundToLoad = new File(gameUtil.getBgPath("over"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
-		try {
-			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
-			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
-			BackgroundImageForStartMenu.setSize(width,height);
-			frame.add(BackgroundImageForStartMenu);
-		}  catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		JButton loadBtn = new JButton(save.getLevel()>1 ? "Continue" : "New Game");
-		loadBtn.setBounds(260, 240, 120, 40);
-		loadBtn.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadBtn.setVisible(false);
-				try {
-					LevelBtnOnClick();
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-			}});
-
-		frame.add(loadBtn);
+		MenuLabel.setVisible(false);
+		GameOverLabel.setVisible(true);
 		frame.setVisible(true);
+		ContinueBtn.setVisible(true);
+		ContinueBtn.requestFocus();
 	}
 
 	void SetLevelButton() {
-		JButton loadBtn = new JButton(save.getLevel()>1 ? "Continue" : "New Game");
-		loadBtn.setBounds(260, 240, 120, 40);
 		JButton level1Btn = new JButton("LEVEL 1");
 		level1Btn.setBounds(110, 300, 120, 40);
 		JButton level2Btn = new JButton("LEVEL 2");
 		level2Btn.setBounds(260, 300, 120, 40);
 		JButton level3Btn = new JButton("LEVEL 3");
 		level3Btn.setBounds(410, 300, 120, 40);
-		loadBtn.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				loadBtn.setVisible(false);
-				level1Btn.setVisible(false);
-				level2Btn.setVisible(false);
-				level3Btn.setVisible(false);
-				try {
-					LevelBtnOnClick();
-				} catch (Exception ex) {
-					throw new RuntimeException(ex);
-				}
-			}});
-
 		level1Btn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(save.getLevel()!=1)return;
-				loadBtn.setVisible(false);
+				if(model.getCurrSave().getLevel()!=1)return;
+				ContinueBtn.setVisible(false);
 				level1Btn.setVisible(false);
 				level2Btn.setVisible(false);
 				level3Btn.setVisible(false);
@@ -261,8 +245,8 @@ public class MainWindow implements Observer {
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(save.getLevel()!=2)return;
-				loadBtn.setVisible(false);
+				if(model.getCurrSave().getLevel()!=2)return;
+				ContinueBtn.setVisible(false);
 				level1Btn.setVisible(false);
 				level2Btn.setVisible(false);
 				level3Btn.setVisible(false);
@@ -277,8 +261,8 @@ public class MainWindow implements Observer {
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(save.getLevel()!=3)return;
-				loadBtn.setVisible(false);
+				if(model.getLevel()!=3)return;
+				ContinueBtn.setVisible(false);
 				level1Btn.setVisible(false);
 				level2Btn.setVisible(false);
 				level3Btn.setVisible(false);
@@ -288,21 +272,30 @@ public class MainWindow implements Observer {
 					throw new RuntimeException(ex);
 				}
 			}});
-
-		frame.add(loadBtn);
 		frame.add(level1Btn);
 		frame.add(level2Btn);
 		frame.add(level3Btn);
 	}
 
 	void LevelBtnOnClick() throws Exception {
-		BackgroundImageForStartMenu.setVisible(false);
+		MenuLabel.setVisible(false);
 		viewer.setVisible(true);
 		viewer.addKeyListener(Controller);    //adding the controller to the Canvas
 		viewer.requestFocusInWindow();
-		model.NewGame();
 		startGame=true;
-		frame.setTitle("LEVEL "+ save.getLevel());
+		frame.setTitle("LEVEL "+ model.getLevel());
+	}
+
+	void NewGameBtnOnClick() throws Exception {
+		MenuLabel.setVisible(false);
+		GameOverLabel.setVisible(false);
+		viewer.setVisible(true);
+		viewer.addKeyListener(Controller);    //adding the controller to the Canvas
+		viewer.requestFocusInWindow();
+		model.getCurrSave().NewGameSave();
+		model.StartNewGame();
+		startGame=true;
+		frame.setTitle("LEVEL "+ model.getLevel());
 	}
 }
 

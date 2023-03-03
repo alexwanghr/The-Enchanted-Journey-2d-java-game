@@ -1,2 +1,2 @@
 id:1,life:3,score:50,level:3
-id:2,life:1,score:150,level:3
+id:2,life:1,score:200,level:3
