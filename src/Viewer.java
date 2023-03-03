@@ -224,7 +224,7 @@ public class Viewer extends JPanel implements Observer {
 
 	private void drawBackground(Graphics g)
 	{
-		File TextureToLoad = new File(gameUtil.getBg(model.getLevel()));
+		File TextureToLoad = new File(gameUtil.getBgPath(Integer. toString(model.getLevel())));
 		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			Image myImage = ImageIO.read(TextureToLoad);
@@ -322,11 +322,17 @@ public class Viewer extends JPanel implements Observer {
 
 	private void drawBossTips(Graphics g)
 	{
-		File file = new File(gameUtil.getPath("dialog"));
+		File dialog = new File(gameUtil.getPath("boss_dialog"));
+		File princess = new File(gameUtil.getPath("princess"));
 		Boss boss = model.getBoss();
 		try {
-			Image myImage = ImageIO.read(file);
+			Image myImage = ImageIO.read(dialog);
 			g.drawImage(myImage, 0, 0, gameUtil.getWindowWidth(), gameUtil.getWindowHeight(), null);
+
+			Image princessImg = ImageIO.read(princess);
+			int animationNumber = (int)(CurrentAnimationTime%30)/10;
+			g.drawImage(princessImg, 280,120, 280+48, 280+64, animationNumber*48,
+					0, (animationNumber+1)*48, 64, null);
 			g.drawString(boss.getLine(),60,350);
 			g.drawString("press Space to continue",230,430);
 		} catch (IOException e) {
@@ -337,7 +343,7 @@ public class Viewer extends JPanel implements Observer {
 
 	private void drawGameEnd(Graphics g)
 	{
-		File TextureToLoad = new File(gameUtil.getPath("gameend"));
+		File TextureToLoad = new File(gameUtil.getBgPath("win"));
 		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			Image myImage = ImageIO.read(TextureToLoad);
@@ -349,7 +355,6 @@ public class Viewer extends JPanel implements Observer {
 		}
 		g.drawString("Player 1 Score =  "+ model.getScore()[0],220,320);
 		g.drawString("Player 2 Score =  "+ model.getScore()[1],220,340);
-		//g.drawString("Congratulations! You have rescued the princess!",200,400);
 	}
 
 
@@ -360,7 +365,7 @@ public class Viewer extends JPanel implements Observer {
 		System.out.println("Viewer recieve msg:" + msg.toString());
 		switch(msg)
 		{
-			case GAME_END -> showGameEnd=true;
+			case GAME_WIN -> showGameEnd=true;
 			case SHOW_TIP -> showTips=true;
 			case CLOSE_TIP -> showTips=false;
 			case HIT_BOSS -> showBossTips=true;

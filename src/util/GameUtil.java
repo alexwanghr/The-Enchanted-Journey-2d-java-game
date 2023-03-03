@@ -33,11 +33,6 @@ public class GameUtil {
 		return "res/map"+ level +".txt";
 	}
 
-	public String getBg(int level)
-	{
-		return "res/bg"+ level +".png";
-	}
-
 	public String getLine()
 	{
 		return "res/line.txt";
@@ -51,6 +46,11 @@ public class GameUtil {
 	public String getPath(String name)
 	{
 		return "res/"+ name +".png";
+	}
+
+	public String getBgPath(String name)
+	{
+		return "res/bg_"+ name +".png";
 	}
 
 	public String getItemPath(String name)

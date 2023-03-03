@@ -7,7 +7,7 @@ public enum EventType {
     CLOSE_TIP,
     GAME_OVER,
     HIT_BOSS,
-    GAME_END,
+    GAME_WIN,
 
 
 }

@@ -69,26 +69,38 @@ public class Save {
         int playerId=1;
         int playerLife=3;
         int playerScore=0;
+        int currLevel = 1;
 
         for (String s: stringList)
         {
             var dataList= s.split(",");
             for (String data: dataList)
             {
-                var playerData = s.split(":");
-                if(playerData[0]=="id") playerId=Integer.parseInt(playerData[1]);
-                if(playerData[0]=="life") playerLife=Integer.parseInt(playerData[1]);
-                if(playerData[0]=="score") playerScore=Integer.parseInt(playerData[1]);
-                if(playerData[0]=="level") level=Integer.parseInt(playerData[1]);
-                setPlayer(playerId,playerLife,playerScore);
+                var playerData = data.split(":");
+                if(playerData[0].equals("id")) {
+                    playerId = Integer.parseInt(playerData[1]);
+                }
+                if(playerData[0].equals("life")) {
+                    playerLife = Integer.parseInt(playerData[1]);
+                }
+                if(playerData[0].equals("score")) {
+                    playerScore = Integer.parseInt(playerData[1]);
+                }
+                if(playerData[0].equals("level")) {
+                    currLevel = Integer.parseInt(playerData[1]);
+                }
             }
+            setPlayer(playerId,playerLife,playerScore,currLevel);
+            System.out.println(String.format("Read Save: id:%d,life:%d,score:%d,level:%d",
+                    playerId,playerLife,playerScore,currLevel));
         }
 
 
     }
 
-    void setPlayer(int id,int life, int playerScore)
+    void setPlayer(int id,int life, int playerScore, int currLevel)
     {
+        this.level = currLevel;
         if(id==1) {
             playerOne = new Player(pathutil.getPlayerPath(1),
                     new Point3f(pathutil.getWindowWidth() / 2-50, 190, 0)

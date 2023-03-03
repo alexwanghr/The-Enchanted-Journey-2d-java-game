@@ -233,7 +233,7 @@ public class Model implements Subject {
 				}
 				else
 				{
-					postMessage(EventType.GAME_END);
+					postMessage(EventType.GAME_WIN);
 				}
 			}
 			return;

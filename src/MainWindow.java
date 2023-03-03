@@ -114,7 +114,7 @@ public class MainWindow implements Observer {
 		  viewer.setBackground(new Color(255,255,255)); //white background  replaced by Space background but if you remove the background method this will draw a white screen
 		  viewer.setVisible(false);
 
-		File BackroundToLoad = new File(gameUtil.getPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		File BackroundToLoad = new File(gameUtil.getBgPath("menu"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
 			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
@@ -189,7 +189,7 @@ public class MainWindow implements Observer {
 		frame.setTitle("The Enchanted Journey");
 		viewer.setVisible(false);
 
-		File BackroundToLoad = new File(gameUtil.getPath("gameover"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		File BackroundToLoad = new File(gameUtil.getBgPath("over"));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {
 			BufferedImage myPicture = ImageIO.read(BackroundToLoad);
 			BackgroundImageForStartMenu = new JLabel(new ImageIcon(myPicture));
