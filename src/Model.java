@@ -88,17 +88,15 @@ public class Model implements Subject {
 	public void postMessage(EventType msg) {
 		this.message=msg;
 		this.changed=true;
-		System.out.println("MODEL SEND MSG: "+msg.toString());
+		System.out.println("MODEL SEND MSG -----------> "+msg.toString());
 		notifyObservers();
 	}
 
 	 private Save save;
-	 private Viewer viewer;
 	 private int level=1;
-	 private float moveSpeed = 1.2f;
+	 private float moveSpeed = 0.9f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
-	 private Controller controller = Controller.getInstance();
 	 private GameUtil gameUtil = GameUtil.getInstance();
 	 public int [][] map=null;
 	 public Lines lines = new Lines();
@@ -111,6 +109,10 @@ public class Model implements Subject {
 	 private CopyOnWriteArrayList<Bullet> BulletList  = new CopyOnWriteArrayList<Bullet>();
 	 private boolean hitEnemyStop;
 	private boolean hitBossStop;
+	private boolean gameWinStop;
+	private int hitgatecount = 0;
+	private int hitbosscount = 0;
+	private int hitbosssum=0;
 
 	public void setObservers(Observer obs)
 	{
@@ -132,7 +134,11 @@ public class Model implements Subject {
 		gate = null;
 		map = null;
 		boss = null;
-		sum = 0;
+		hitbosscount = 0;
+		hitgatecount=0;
+		hitbosssum=0;
+		hitBossStop=false;
+		gameWinStop=false;
 
 		PlayerOne = save.getPlayerOne();
 		PlayerTwo = save.getPlayerTwo();
@@ -193,6 +199,16 @@ public class Model implements Subject {
 	
 	// This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly. 
 	public void gamelogic() throws Exception {
+
+		if(gameWinStop)
+		{
+			if(Controller.getInstance().isKeyAltPressed())
+			{
+				postMessage(EventType.GO_MENU);
+			}
+			return;
+		}
+
 		if(hitEnemyStop)
 		{
 			if(Controller.getInstance().isKeySpacePressed())
@@ -211,15 +227,16 @@ public class Model implements Subject {
 		{
 			if(Controller.getInstance().isKeySpacePressed())
 			{
+				System.out.println("hitBossStop press space");
 				if(boss.CheckHasNextLine()) {
 					boss.showNextLine();
 				}
 				else
 				{
+					gameWinStop=true;
 					postMessage(EventType.GAME_WIN);
 				}
 			}
-			return;
 		}
 		playerLogic(); 
 		// Enemy Logic next
@@ -266,10 +283,12 @@ public class Model implements Subject {
 		{
 			if (gate!=null && getDistanceX(player,gate)<3)
 			{
+				hitgatecount++;
 				PlayerHitGate();
 			}
 			if (boss!=null && getDistanceX(player,boss)<3)
 			{
+				hitbosscount++;
 				PlayerHitBoss();
 			}
 
@@ -308,7 +327,7 @@ public class Model implements Subject {
 		// TODO Auto-generated method stub
 		for (Bullet bullet : BulletList)
 		{
-			bullet.getCentre().ApplyVector(new Vector3f(moveSpeed*2,0,0));
+			bullet.getCentre().ApplyVector(new Vector3f(moveSpeed*1.2f,0,0));
 			for (Enemy enemy : EnemiesList)
 			{
 				if (isHit(enemy,bullet))
@@ -343,12 +362,11 @@ public class Model implements Subject {
 		BulletList.remove(bullet);
 	}
 
-	private int sum=0;
 	void BulletHitBoss(Bullet bullet) throws IOException {
-		sum++;
+		hitbosssum++;
 		BulletList.remove(bullet);
 		getPlayer(bullet.getBelongId()).changeScore((-1)*boss.getPunishscore());
-		if(sum>=boss.getLife()){
+		if(hitbosssum >=boss.getLife()){
 			GameOver();
 		}
 	}
@@ -381,22 +399,31 @@ public class Model implements Subject {
 		}
 	}
 
-	void PlayerHitGate() throws IOException {
+	void PlayerHitGate() {
+		if(hitgatecount>1)
+		{
+			return;
+		}
+		PlayMusic("hitgate");
 		level+=1;
 		save.SaveGame(this);
-		System.out.println("hit gate");
-		postMessage(EventType.GO_TO_MENU);
+		postMessage(EventType.GO_MENU);
 	}
 
 	void PlayerHitItem(Player player, Item item)
 	{
+		PlayMusic("hititem");
 		player.changeScore(item.getScore());
 		ItemsList.remove(item);
 	}
 
-	void PlayerHitBoss() throws Exception {
+	void PlayerHitBoss() {
+		if(hitbosscount>1)
+		{
+			return;
+		}
+		save.NewGameSave();
 		hitBossStop =true;
-		//save.SaveGame(this);
 		postMessage(EventType.HIT_BOSS);
 	}
 
@@ -574,6 +601,24 @@ public class Model implements Subject {
 	public Save getCurrSave()
 	{
 		return this.save;
+	}
+
+	Music bgm = new Music();
+	void PlayMusic(String name)
+	{
+		//StopMusic();
+		bgm.setFile(name);
+		bgm.play();
+	}
+
+	void StopMusic()
+	{
+		bgm.setFile(null);
+		try {
+			bgm.stop();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
 

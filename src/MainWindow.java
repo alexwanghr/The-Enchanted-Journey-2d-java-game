@@ -16,6 +16,7 @@ import com.journaldev.design.observer.EventType;
 import com.journaldev.design.observer.Observer;
 import com.journaldev.design.observer.Subject;
 import util.GameUtil;
+import util.Music;
 
 /*
  * Created by Abraham Campbell on 15/01/2020.
@@ -55,10 +56,10 @@ public class MainWindow implements Observer {
 	@Override
 	public void update() {
 		EventType msg = (EventType) subject.getUpdate(this);
-		System.out.println("MAINWINDOW RECIEVE MSG: "+msg.toString());
+		//System.out.println("MAINWINDOW RECIEVE MSG: "+msg.toString());
 		switch(msg)
 		{
-			case GO_TO_MENU -> SetMenuPage();
+			case GO_MENU -> SetMenuPage();
 			case GAME_OVER -> SetGameOverPage();
 		}
 	}
@@ -99,6 +100,10 @@ public class MainWindow implements Observer {
 	 private JLabel GameOverLabel;
 	 private JButton NewGameBtn;
 	 private JButton ContinueBtn;
+	 private JButton level1Btn;
+	 private JButton level2Btn;
+	 private JButton level3Btn;
+	 Music bgm = new Music();
 
 	public MainWindow(){
 		subject = model;
@@ -122,24 +127,26 @@ public class MainWindow implements Observer {
 			MenuLabel.setSize(width,height);
 			frame.add(MenuLabel);
 
-			myPicture = ImageIO.read(gameoverFile);
-			GameOverLabel = new JLabel(new ImageIcon(myPicture));
+			BufferedImage GameOverImg = ImageIO.read(gameoverFile);
+			GameOverLabel = new JLabel(new ImageIcon(GameOverImg));
 			GameOverLabel.setSize(width,height);
 			frame.add(GameOverLabel);
 		}  catch (IOException e) {
 			e.printStackTrace();
 		}
 
+		PlayMusic("menu");
+		SetLevelButton();
 		NewGameBtn = new JButton("New Game");
 		NewGameBtn.setBounds(190, 240, 120, 40);
 		ContinueBtn = new JButton("Continue");
 		ContinueBtn.setBounds(330, 240, 120, 40);
+		setBtnStatus();
 		NewGameBtn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				NewGameBtn.setVisible(false);
-				ContinueBtn.setVisible(false);
+				hideBtns();
 				try {
 					NewGameBtnOnClick();
 				} catch (Exception ex) {
@@ -150,19 +157,21 @@ public class MainWindow implements Observer {
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				ContinueBtn.setVisible(false);
-				NewGameBtn.setVisible(false);
+				if(model.getLevel()==1) return;
+				hideBtns();
 				try {
 					LevelBtnOnClick();
 				} catch (Exception ex) {
 					throw new RuntimeException(ex);
 				}
 			}});
-		//SetLevelButton();
+
 		frame.add(NewGameBtn);
 		frame.add(ContinueBtn);
 		GameOverLabel.setVisible(false);
 		frame.setVisible(true);
+		ContinueBtn.requestFocus();
+		NewGameBtn.requestFocus();
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -201,9 +210,14 @@ public class MainWindow implements Observer {
 		frame.setTitle("The Enchanted Journey");
 		viewer.setVisible(false);
 		MenuLabel.setVisible(true);
+		GameOverLabel.setVisible(false);
 		frame.setVisible(true);
+		NewGameBtn.setVisible(true);
 		ContinueBtn.setVisible(true);
 		ContinueBtn.requestFocus();
+		NewGameBtn.requestFocus();
+		StopMusic();
+		PlayMusic("menu");
 	}
 
 	void SetGameOverPage()
@@ -214,26 +228,27 @@ public class MainWindow implements Observer {
 		MenuLabel.setVisible(false);
 		GameOverLabel.setVisible(true);
 		frame.setVisible(true);
+		NewGameBtn.setVisible(true);
 		ContinueBtn.setVisible(true);
 		ContinueBtn.requestFocus();
+		NewGameBtn.requestFocus();
+		StopMusic();
+		PlayMusic("menu");
 	}
 
 	void SetLevelButton() {
-		JButton level1Btn = new JButton("LEVEL 1");
+		level1Btn = new JButton("LEVEL 1");
 		level1Btn.setBounds(110, 300, 120, 40);
-		JButton level2Btn = new JButton("LEVEL 2");
+		level2Btn = new JButton("LEVEL 2");
 		level2Btn.setBounds(260, 300, 120, 40);
-		JButton level3Btn = new JButton("LEVEL 3");
+		level3Btn = new JButton("LEVEL 3");
 		level3Btn.setBounds(410, 300, 120, 40);
 		level1Btn.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(model.getCurrSave().getLevel()!=1)return;
-				ContinueBtn.setVisible(false);
-				level1Btn.setVisible(false);
-				level2Btn.setVisible(false);
-				level3Btn.setVisible(false);
+				if(model.getLevel()!=1) return;
+				hideBtns();
 				try {
 					LevelBtnOnClick();
 				} catch (Exception ex) {
@@ -245,11 +260,8 @@ public class MainWindow implements Observer {
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(model.getCurrSave().getLevel()!=2)return;
-				ContinueBtn.setVisible(false);
-				level1Btn.setVisible(false);
-				level2Btn.setVisible(false);
-				level3Btn.setVisible(false);
+				if(model.getLevel()!=2) return;
+				hideBtns();
 				try {
 					LevelBtnOnClick();
 				} catch (Exception ex) {
@@ -261,11 +273,8 @@ public class MainWindow implements Observer {
 		{
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(model.getLevel()!=3)return;
-				ContinueBtn.setVisible(false);
-				level1Btn.setVisible(false);
-				level2Btn.setVisible(false);
-				level3Btn.setVisible(false);
+				if(model.getLevel()!=3) return;
+				hideBtns();
 				try {
 					LevelBtnOnClick();
 				} catch (Exception ex) {
@@ -278,12 +287,16 @@ public class MainWindow implements Observer {
 	}
 
 	void LevelBtnOnClick() throws Exception {
+		model.StartNewGame();
 		MenuLabel.setVisible(false);
+		GameOverLabel.setVisible(false);
 		viewer.setVisible(true);
 		viewer.addKeyListener(Controller);    //adding the controller to the Canvas
 		viewer.requestFocusInWindow();
 		startGame=true;
 		frame.setTitle("LEVEL "+ model.getLevel());
+		StopMusic();
+		PlayMusic("bgm");
 	}
 
 	void NewGameBtnOnClick() throws Exception {
@@ -296,6 +309,41 @@ public class MainWindow implements Observer {
 		model.StartNewGame();
 		startGame=true;
 		frame.setTitle("LEVEL "+ model.getLevel());
+		StopMusic();
+		PlayMusic("bgm");
+	}
+
+	void setBtnStatus()
+	{
+		ContinueBtn.setBackground(model.getLevel()==1 ? Color.black: Color.WHITE);
+		level1Btn.setBackground(model.getLevel()!=1 ? Color.black: Color.WHITE);
+		level2Btn.setBackground(model.getLevel()!=2 ? Color.black: Color.WHITE);
+		level3Btn.setBackground(model.getLevel()!=3 ? Color.black: Color.WHITE);
+	}
+
+	void hideBtns()
+	{
+		NewGameBtn.setVisible(false);
+		ContinueBtn.setVisible(false);
+		level1Btn.setVisible(false);
+		level2Btn.setVisible(false);
+		level3Btn.setVisible(false);
+	}
+
+	void PlayMusic(String name)
+	{
+		bgm.setFile(name);
+		bgm.play();
+	}
+
+	void StopMusic()
+	{
+		bgm.setFile(null);
+		try {
+			bgm.stop();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
 

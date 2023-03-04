@@ -2,7 +2,7 @@ package com.journaldev.design.observer;
 
 public enum EventType {
 
-    GO_TO_MENU,
+    GO_MENU,
     SHOW_TIP,
     CLOSE_TIP,
     GAME_OVER,

@@ -81,7 +81,6 @@ public class GameUtil {
 	{
 		return "res/music/"+name+".wav";
 	}
-
 	public Image getGrassImage(String type) throws IOException {
 		File TextureToLoad = new File(getGrassPath(type));  //should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
 		try {

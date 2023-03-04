@@ -34,6 +34,7 @@ public class Player extends GameObject {
     public void changeScore(int count)
     {
         playerScore +=count;
+        if(playerScore<0) playerScore=0;
     }
 
     public void changeLife(int count)

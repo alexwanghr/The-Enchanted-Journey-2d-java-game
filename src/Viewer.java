@@ -37,7 +37,13 @@ SOFTWARE.
    (MIT LICENSE ) e.g do what you want with this :-) 
  
  * Credits: Kelly Charles (2020)
- */ 
+ */
+
+/*
+// Tutorial //
+Observer Design Pattern in Java
+https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
+*/
 public class Viewer extends JPanel implements Observer {
 	private long CurrentAnimationTime= 0;
 	private static Model model;
@@ -334,7 +340,7 @@ public class Viewer extends JPanel implements Observer {
 			g.drawImage(princessImg, 280,120, 328, 184, animationNumber*48,
 					0, (animationNumber+1)*48, 64, null);
 			g.drawString(boss.getLine(),60,350);
-			g.drawString("press Space to continue",230,430);
+			g.drawString("Press Space to continue",230,430);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -353,8 +359,9 @@ public class Viewer extends JPanel implements Observer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		g.drawString("Player 1 Score =  "+ model.getScore()[0],220,320);
-		g.drawString("Player 2 Score =  "+ model.getScore()[1],220,340);
+		g.drawString("Player 1 Score =  "+ model.getScore()[0],240,320);
+		g.drawString("Player 2 Score =  "+ model.getScore()[1],240,340);
+		g.drawString("Press Alt to continue",240,430);
 	}
 
 
@@ -362,14 +369,27 @@ public class Viewer extends JPanel implements Observer {
 	@Override
 	public void update() {
 		EventType msg = (EventType) subject.getUpdate(this);
-		System.out.println("VIEWER RECIEVE MSG:" + msg.toString());
+		//System.out.println("VIEWER RECIEVE MSG:" + msg.toString());
 		switch(msg)
 		{
-			case GAME_WIN -> showGameEnd=true;
+			case GAME_WIN -> GameWin();
 			case SHOW_TIP -> showTips=true;
 			case CLOSE_TIP -> showTips=false;
 			case HIT_BOSS -> showBossTips=true;
+			case GO_MENU -> Reset();
 		}
+	}
+
+	void GameWin()
+	{
+		showGameEnd=true;
+		showBossTips=false;
+	}
+
+	void Reset()
+	{
+		showGameEnd=false;
+		showBossTips=false;
 	}
 
 	private boolean showTips;

@@ -40,6 +40,7 @@ public class Controller implements KeyListener {
 	   private static boolean KeyLeftPressed= false;
 	   private static boolean KeyEnterPressed= false;
 	   private static boolean KeyShiftPressed= false;
+	   private static boolean KeyAltPressed= false;
 
 	   private static final Controller instance = new Controller();
 	   
@@ -66,6 +67,7 @@ public class Controller implements KeyListener {
 			case KeyEvent.VK_RIGHT:setKeyRightPressed(true);break;
 			case KeyEvent.VK_SHIFT:setKeyShiftPressed(true);break;
 			case KeyEvent.VK_ENTER:setKeyEnterPressed(true);break;
+			case KeyEvent.VK_ALT:setKeyAltPressed(true);break;
 			case KeyEvent.VK_W:setKeyWPressed(true);break;
 			case KeyEvent.VK_S:setKeySPressed(true);break;
 			case KeyEvent.VK_D:setKeyDPressed(true);break;
@@ -86,6 +88,7 @@ public class Controller implements KeyListener {
 			case KeyEvent.VK_RIGHT :setKeyRightPressed(false);break;
 			case KeyEvent.VK_SHIFT:setKeyShiftPressed(false);break;
 			case KeyEvent.VK_ENTER:setKeyEnterPressed(false);break;
+			case KeyEvent.VK_ALT:setKeyAltPressed(false);break;
 			case KeyEvent.VK_W:setKeyWPressed(false);break;
 			case KeyEvent.VK_S:setKeySPressed(false);break;
 			case KeyEvent.VK_D:setKeyDPressed(false);break;
@@ -168,6 +171,12 @@ public class Controller implements KeyListener {
 
 	public void setKeyEnterPressed(boolean keyEnterPressed) {
 		KeyEnterPressed = keyEnterPressed;
+	}
+	public boolean isKeyAltPressed() {
+		return KeyAltPressed;
+	}
+	public void setKeyAltPressed(boolean keyAltPressed) {
+		KeyAltPressed = keyAltPressed;
 	}
 }
 

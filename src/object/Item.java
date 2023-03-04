@@ -14,8 +14,16 @@ public class Item extends GameObject {
         this.height=32;
         this.centre =centre;
         this.tag = ObjectTag.item;
-        this.score = 50;
+        setScore();
         SetTexture();
+    }
+
+    void setScore()
+    {
+        int min = 50;
+        int max = 100;
+        int n = (int)(Math.random()*(max - min + 1)) + min;
+        this.score = n;
     }
 
     void SetTexture()
