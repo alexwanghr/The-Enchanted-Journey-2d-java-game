@@ -7,6 +7,7 @@ public class Player extends GameObject {
 
     private int playerScore =0;
     private int id;
+    private float attackValue = 1.2f;
 
     public Player(String textureLocation, Point3f centre, int id) {
         hasTextured=true;
@@ -17,6 +18,7 @@ public class Player extends GameObject {
         this.centre =centre;
         this.life=3;
         this.tag = ObjectTag.player;
+        setAttackValue();
     }
 
     public Player(String textureLocation, Point3f centre,int id, int life, int playerScore) {
@@ -29,17 +31,33 @@ public class Player extends GameObject {
         this.life=life;
         this.playerScore = playerScore;
         this.tag = ObjectTag.player;
+        setAttackValue();
     }
 
     public void changeScore(int count)
     {
         playerScore +=count;
         if(playerScore<0) playerScore=0;
+        setAttackValue();
+    }
+
+    void setAttackValue()
+    {
+        attackValue = 1.2f + (playerScore%300)*0.1f;
+    }
+
+    public float getAttackValue()
+    {
+        return this.attackValue;
     }
 
     public void changeLife(int count)
     {
         life+=count;
+        if(life==0)
+        {
+            playerScore-=100;
+        }
     }
 
     public int getPlayerScore()

@@ -327,7 +327,7 @@ public class Model implements Subject {
 		// TODO Auto-generated method stub
 		for (Bullet bullet : BulletList)
 		{
-			bullet.getCentre().ApplyVector(new Vector3f(moveSpeed*1.2f,0,0));
+			bullet.getCentre().ApplyVector(new Vector3f(moveSpeed*getPlayer(bullet.getBelongId()).getAttackValue(),0,0));
 			for (Enemy enemy : EnemiesList)
 			{
 				if (isHit(enemy,bullet))
@@ -606,7 +606,6 @@ public class Model implements Subject {
 	Music bgm = new Music();
 	void PlayMusic(String name)
 	{
-		//StopMusic();
 		bgm.setFile(name);
 		bgm.play();
 	}

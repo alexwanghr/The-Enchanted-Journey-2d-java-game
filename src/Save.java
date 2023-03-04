@@ -34,10 +34,10 @@ public class Save {
         level = model.getLevel();
         if(level>3) level=3;
         String playerData = String.format("id:%d,life:%d,score:%d,level:%d",
-                1,playerOne.getLife(),playerOne.getPlayerScore(),level);
+                1,playerOne.getLife()==0?3:playerOne.getLife(),playerOne.getPlayerScore(),level);
         String str = playerData+"\n";
         playerData = String.format("id:%d,life:%d,score:%d,level:%d",
-                2,playerTwo.getLife(),playerTwo.getPlayerScore(),level);
+                2,playerTwo.getLife()==0?3:playerTwo.getLife(),playerTwo.getPlayerScore(),level);
         str+=playerData;
         writeFile(str);
     }

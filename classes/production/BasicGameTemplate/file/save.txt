@@ -1,2 +1,2 @@
-id:1,life:3,score:0,level:1
-id:2,life:3,score:0,level:1
+id:1,life:0,score:203,level:2
+id:2,life:1,score:1007,level:2
