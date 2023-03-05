@@ -61,6 +61,7 @@ public class MainWindow implements Observer {
 		{
 			case GO_MENU -> SetMenuPage();
 			case GAME_OVER -> SetGameOverPage();
+			case GAME_WIN -> onGameWin();
 		}
 	}
 
@@ -105,10 +106,11 @@ public class MainWindow implements Observer {
 	 private JButton level3Btn;
 	 Music bgm = new Music();
 
-	public MainWindow(){
+	public MainWindow() throws IOException {
 		subject = model;
 		model.setObservers(this);
 		model.setObservers(viewer);
+		history = new History();
 		width = gameUtil.getWindowWidth();
 		height = gameUtil.getWindowHeight();
 		  frame.setSize(width, height);  // you can customise this later and adapt it to change on size.
@@ -313,6 +315,20 @@ public class MainWindow implements Observer {
 		frame.setTitle("LEVEL "+ model.getLevel());
 		StopMusic();
 		PlayMusic("bgm");
+	}
+
+	private History history;
+	void HistoryBtnOnClick() throws IOException {
+		history = new History();
+		var rankList = history.getHistoryList();
+		for (HistoryScore data :rankList) {
+
+		}
+	}
+
+	void onGameWin() {
+		if(history==null) return;
+		history.SaveHistory(model);
 	}
 
 	void setBtnStatus()

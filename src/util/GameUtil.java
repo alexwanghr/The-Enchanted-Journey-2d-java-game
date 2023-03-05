@@ -77,6 +77,11 @@ public class GameUtil {
 		return "res/file/save.txt";
 	}
 
+	public String getHistory()
+	{
+		return "res/file/history.txt";
+	}
+
 	public String getMusic(String name)
 	{
 		return "res/music/"+name+".wav";

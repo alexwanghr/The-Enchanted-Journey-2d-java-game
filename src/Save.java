@@ -11,7 +11,6 @@ public class Save {
     Player playerTwo;
     int level=1;
     private GameUtil pathutil = GameUtil.getInstance();
-    private Model model;
 
     public Save() throws Exception {
         playerOne = new Player(pathutil.getPlayerPath(1),new Point3f(pathutil.getWindowWidth()/2-50,190,0),1);
