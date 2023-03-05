@@ -2,6 +2,7 @@ import object.Player;
 import util.GameUtil;
 import util.Point3f;
 
+import javax.swing.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -13,10 +14,8 @@ import java.util.ArrayList;
 
 class HistoryScore
 {
-    public int rank;
     public int score;
     public String time;
-    public Date now;
 
     public HistoryScore(int score, String time)
     {
@@ -32,6 +31,10 @@ class HistoryScore
     @Override
     public String toString() {
         return String.format("score,"+score+";time,"+time);
+    }
+
+    public String displayString(int rank){
+        return String.format("Rank%d Score %d Achieve Time %s",rank, score,time);
     }
 }
 public class History {
@@ -67,8 +70,10 @@ public class History {
             FileWriter fileWriter = new FileWriter(file.getAbsoluteFile());
             BufferedWriter bw = new BufferedWriter(fileWriter);
             String str="";
-            for (HistoryScore data: historyList) {
-                str += data.toString()+"\n";
+            int count = Math.min(10,historyList.size());
+            for(int i=0; i<count; i++)
+            {
+                str += historyList.get(i).toString()+"\n";
             }
             bw.write(str);
             bw.close();
@@ -120,7 +125,7 @@ public class History {
             return;
         }
 
-        HistoryScore temp = historyList.get(0);
+        HistoryScore temp;
         for(int i=0; i<historyList.size(); i++)
         {
             for(int j=0; j<historyList.size()-1-i; j++)
@@ -137,5 +142,15 @@ public class History {
 
     public ArrayList<HistoryScore> getHistoryList() {
         return historyList;
+    }
+
+    public String getString()
+    {
+        String s="";
+        for(int i=0; i<historyList.size(); i++)
+        {
+            s += historyList.get(i).displayString(i+1) +"\n";
+        }
+        return s;
     }
 }

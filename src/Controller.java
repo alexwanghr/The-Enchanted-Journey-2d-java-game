@@ -41,6 +41,7 @@ public class Controller implements KeyListener {
 	   private static boolean KeyEnterPressed= false;
 	   private static boolean KeyShiftPressed= false;
 	   private static boolean KeyAltPressed= false;
+	   private static boolean KeyEscPressed= false;
 
 	   private static final Controller instance = new Controller();
 	   
@@ -71,6 +72,7 @@ public class Controller implements KeyListener {
 			case KeyEvent.VK_W:setKeyWPressed(true);break;
 			case KeyEvent.VK_S:setKeySPressed(true);break;
 			case KeyEvent.VK_D:setKeyDPressed(true);break;
+			case KeyEvent.VK_ESCAPE:setKeyEscPressed(true);break;
 			default:break;
 		}
 		
@@ -92,8 +94,18 @@ public class Controller implements KeyListener {
 			case KeyEvent.VK_W:setKeyWPressed(false);break;
 			case KeyEvent.VK_S:setKeySPressed(false);break;
 			case KeyEvent.VK_D:setKeyDPressed(false);break;
+			case KeyEvent.VK_ESCAPE:setKeyEscPressed(false);break;
 			default:break;
 		}
+	}
+
+	public boolean isKeyEscPressed() {
+		return KeyEscPressed;
+	}
+
+	public void setKeyEscPressed(boolean keyEscPressed) {
+		 if(keyEscPressed)System.out.println("press esc");
+		 KeyEscPressed = keyEscPressed;
 	}
 
 	public boolean isKeySPressed() {

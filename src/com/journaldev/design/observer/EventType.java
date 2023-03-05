@@ -9,6 +9,7 @@ public enum EventType {
     HIT_BOSS,
     GAME_WIN,
     WRONG_KILL,
+    SHOW_HISTORY,
 
 
 }

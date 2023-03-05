@@ -89,6 +89,7 @@ public class Model implements Subject {
 		hitbosssum=0;
 		hitBossStop=false;
 		gameWinStop=false;
+		showHistoryRank=false;
 
 		PlayerOne = save.getPlayerOne();
 		PlayerTwo = save.getPlayerTwo();
@@ -141,6 +142,14 @@ public class Model implements Subject {
 	
 	// This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly. 
 	public void gamelogic() throws Exception {
+		if(showHistoryRank)
+		{
+			if(Controller.getInstance().isKeyEscPressed())
+			{
+				postMessage(EventType.GO_MENU);
+			}
+			return;
+		}
 
 		if(gameWinStop)
 		{
@@ -558,7 +567,19 @@ public class Model implements Subject {
 		return this.save;
 	}
 
-	Music bgm = new Music();
+	private ArrayList<HistoryScore> historyStr = new ArrayList<>();
+	private boolean showHistoryRank;
+    public void showHistory(ArrayList<HistoryScore> data) {
+        historyStr = data;
+		showHistoryRank=true;
+        postMessage(EventType.SHOW_HISTORY);
+    }
+
+    public ArrayList<HistoryScore> getHistoryStr() {
+        return historyStr;
+    }
+
+    Music bgm = new Music();
 	void PlayMusic(String name)
 	{
 		bgm.setFile(name);

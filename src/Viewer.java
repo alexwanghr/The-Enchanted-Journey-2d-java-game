@@ -8,6 +8,7 @@ import util.Point3f;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
@@ -90,6 +91,11 @@ public class Viewer extends JPanel implements Observer {
 		if(showGameEnd)
 		{
 			drawGameEnd(g);
+			return;
+		}
+		if(showHistory)
+		{
+			drawHistory(model.getHistoryStr(),g);
 			return;
 		}
 		CurrentAnimationTime++; // runs animation time step
@@ -388,6 +394,26 @@ public class Viewer extends JPanel implements Observer {
 		g.drawString("Press Alt to continue",240,430);
 	}
 
+	private void drawHistory(ArrayList<HistoryScore> historyList, Graphics g)
+	{
+		File TextureToLoad = new File(gameUtil.getBgPath("1"));
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			Image myImage = ImageIO.read(TextureToLoad);
+			g.drawImage(myImage, 0,0,gameUtil.getWindowWidth() , gameUtil.getWindowHeight(), null);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		for(int i=0; i<historyList.size(); i++)
+		{
+			g.drawString(historyList.get(i).displayString(i+1),100,30*(i+1));
+		}
+		g.drawString("Press ESC to continue",240,430);
+	}
+
 
 	private Subject subject;
 	@Override
@@ -402,6 +428,7 @@ public class Viewer extends JPanel implements Observer {
 			case HIT_BOSS -> showBossTips=true;
 			case GO_MENU -> Reset();
 			case WRONG_KILL -> showBlood=true;
+			case SHOW_HISTORY -> showHistory=true;
 		}
 	}
 
@@ -415,12 +442,14 @@ public class Viewer extends JPanel implements Observer {
 	{
 		showGameEnd=false;
 		showBossTips=false;
+		showHistory=false;
 	}
 
 	private boolean showTips;
 	private boolean showGameEnd;
 	private boolean showBossTips;
 	private boolean showBlood;
+	private boolean showHistory;
 	@Override
 	public void setSubject(Subject sub) {
 		subject = model;
