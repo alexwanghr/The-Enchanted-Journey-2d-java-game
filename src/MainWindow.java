@@ -212,6 +212,7 @@ public class MainWindow implements Observer {
 		MenuLabel.setVisible(true);
 		GameOverLabel.setVisible(false);
 		frame.setVisible(true);
+		setBtnStatus();
 		NewGameBtn.setVisible(true);
 		ContinueBtn.setVisible(true);
 		ContinueBtn.requestFocus();
@@ -228,6 +229,7 @@ public class MainWindow implements Observer {
 		MenuLabel.setVisible(false);
 		GameOverLabel.setVisible(true);
 		frame.setVisible(true);
+		setBtnStatus();
 		NewGameBtn.setVisible(true);
 		ContinueBtn.setVisible(true);
 		ContinueBtn.requestFocus();
@@ -315,10 +317,11 @@ public class MainWindow implements Observer {
 
 	void setBtnStatus()
 	{
-		ContinueBtn.setBackground(model.getLevel()==1 ? Color.black: Color.WHITE);
-		level1Btn.setBackground(model.getLevel()!=1 ? Color.black: Color.WHITE);
-		level2Btn.setBackground(model.getLevel()!=2 ? Color.black: Color.WHITE);
-		level3Btn.setBackground(model.getLevel()!=3 ? Color.black: Color.WHITE);
+		NewGameBtn.setBackground(Color.WHITE);
+		ContinueBtn.setBackground(model.getLevel()==1 ? Color.gray: Color.WHITE);
+		level1Btn.setBackground(model.getLevel()!=1 ? Color.gray: Color.WHITE);
+		level2Btn.setBackground(model.getLevel()!=2 ? Color.gray: Color.WHITE);
+		level3Btn.setBackground(model.getLevel()!=3 ? Color.gray: Color.WHITE);
 	}
 
 	void hideBtns()

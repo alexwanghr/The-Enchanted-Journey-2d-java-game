@@ -42,59 +42,9 @@ https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 */
 
 public class Model implements Subject {
-
-	private List<Observer> observers=new ArrayList<>();
-	private EventType message;
-	private boolean changed;
-	private final Object MUTEX= new Object();
-
-	@Override
-	public void register(Observer obj) {
-		if(obj == null) throw new NullPointerException("Null Observer");
-		synchronized (MUTEX) {
-			if(!observers.contains(obj)) observers.add(obj);
-		}
-	}
-
-	@Override
-	public void unregister(Observer obj) {
-		synchronized (MUTEX) {
-			observers.remove(obj);
-		}
-	}
-
-	@Override
-	public void notifyObservers() {
-		List<Observer> observersLocal = null;
-		//synchronization is used to make sure any observer registered after message is received is not notified
-		synchronized (MUTEX) {
-			if (!changed)
-				return;
-			observersLocal = new ArrayList<>(this.observers);
-			this.changed=false;
-		}
-		for (Observer obj : observersLocal) {
-			obj.update();
-		}
-
-	}
-
-	@Override
-	public EventType getUpdate(Observer obj) {
-		return this.message;
-	}
-
-	//method to post message to the topic
-	public void postMessage(EventType msg) {
-		this.message=msg;
-		this.changed=true;
-		System.out.println("MODEL SEND MSG -----------> "+msg.toString());
-		notifyObservers();
-	}
-
 	 private Save save;
 	 private int level=1;
-	 private float moveSpeed = 0.9f;
+	 private float moveSpeed = 0.5f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private GameUtil gameUtil = GameUtil.getInstance();
@@ -164,16 +114,8 @@ public class Model implements Subject {
 				ObjectTag tag = mp.getTag(map[i][j]);
 				if(tag==ObjectTag.frog||tag==ObjectTag.bat||tag==ObjectTag.ghost)
 				{
-					if(EnemiesList.size()<=2)
-					{
-						enemy = new Enemy(new Point3f(j*size[0],i*size[1],0), tag,true);
-						EnemiesList.add(enemy);
-					}
-					else
-					{
-						enemy = new Enemy(new Point3f(j * size[0], i * size[1], 0), tag);
-						EnemiesList.add(enemy);
-					}
+					enemy = new Enemy(new Point3f(j * size[0], i * size[1], 0), tag);
+					EnemiesList.add(enemy);
 				}
 				else if(tag==ObjectTag.item)
 				{
@@ -422,6 +364,7 @@ public class Model implements Subject {
 		{
 			return;
 		}
+		PlayMusic("hitgate");
 		save.NewGameSave();
 		hitBossStop =true;
 		postMessage(EventType.HIT_BOSS);
@@ -619,6 +562,57 @@ public class Model implements Subject {
 			e.printStackTrace();
 		}
 	}
+
+
+	private List<Observer> observers=new ArrayList<>();
+	private EventType message;
+	private boolean changed;
+	private final Object MUTEX= new Object();
+
+	@Override
+	public void register(Observer obj) {
+		if(obj == null) throw new NullPointerException("Null Observer");
+		synchronized (MUTEX) {
+			if(!observers.contains(obj)) observers.add(obj);
+		}
+	}
+
+	@Override
+	public void unregister(Observer obj) {
+		synchronized (MUTEX) {
+			observers.remove(obj);
+		}
+	}
+
+	@Override
+	public void notifyObservers() {
+		List<Observer> observersLocal = null;
+		//synchronization is used to make sure any observer registered after message is received is not notified
+		synchronized (MUTEX) {
+			if (!changed)
+				return;
+			observersLocal = new ArrayList<>(this.observers);
+			this.changed=false;
+		}
+		for (Observer obj : observersLocal) {
+			obj.update();
+		}
+
+	}
+
+	@Override
+	public EventType getUpdate(Observer obj) {
+		return this.message;
+	}
+
+	//method to post message to the topic
+	public void postMessage(EventType msg) {
+		this.message=msg;
+		this.changed=true;
+		System.out.println("MODEL SEND MSG -----------> "+msg.toString());
+		notifyObservers();
+	}
+
 }
 
 

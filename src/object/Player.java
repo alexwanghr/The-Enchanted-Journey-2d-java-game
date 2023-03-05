@@ -7,7 +7,7 @@ public class Player extends GameObject {
 
     private int playerScore =0;
     private int id;
-    private float attackValue = 1.2f;
+    private float attackValue;
 
     public Player(String textureLocation, Point3f centre, int id) {
         hasTextured=true;
@@ -43,7 +43,7 @@ public class Player extends GameObject {
 
     void setAttackValue()
     {
-        attackValue = 1.2f + (playerScore%300)*0.1f;
+        attackValue = 1.0f + (playerScore%500)*0.1f;
     }
 
     public float getAttackValue()

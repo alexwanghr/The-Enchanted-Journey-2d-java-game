@@ -4,9 +4,7 @@ import com.journaldev.design.observer.Subject;
 import object.*;
 import util.GameUtil;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.LayoutManager;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
