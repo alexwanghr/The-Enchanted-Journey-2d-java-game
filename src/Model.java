@@ -44,7 +44,7 @@ https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 public class Model implements Subject {
 	 private Save save;
 	 private int level=1;
-	 private float moveSpeed = 0.5f;
+	 private float moveSpeed = 1.0f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private GameUtil gameUtil = GameUtil.getInstance();
@@ -290,11 +290,14 @@ public class Model implements Subject {
 		}
 	}
 
+	Point3f wrongKillPos = new Point3f(gameUtil.getWindowWidth()/2, gameUtil.getWindowHeight()/2, 0);
 	void BulletHitEnemy(Bullet bullet, Enemy enemy)
 	{
 		if(enemy.isHasTip())
 		{
 			getPlayer(bullet.getBelongId()).changeScore((-1)*enemy.getScore());
+			setWrongKillPos(enemy);
+			postMessage(EventType.WRONG_KILL);
 		}
 		else
 		{
@@ -302,6 +305,15 @@ public class Model implements Subject {
 		}
 		EnemiesList.remove(enemy);
 		BulletList.remove(bullet);
+	}
+
+	void setWrongKillPos(Enemy enemy)
+	{
+		wrongKillPos = enemy.getCentre();
+	}
+
+	public Point3f getWrongKillPos() {
+		return wrongKillPos;
 	}
 
 	void BulletHitBoss(Bullet bullet) throws IOException {

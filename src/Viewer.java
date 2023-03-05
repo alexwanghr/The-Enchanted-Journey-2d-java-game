@@ -3,6 +3,7 @@ import com.journaldev.design.observer.Observer;
 import com.journaldev.design.observer.Subject;
 import object.*;
 import util.GameUtil;
+import util.Point3f;
 
 import java.awt.*;
 import java.io.File;
@@ -80,7 +81,8 @@ public class Viewer extends JPanel implements Observer {
 		this.repaint();
 		// TODO Auto-generated method stub
 	}
-	
+
+	int showBloodTime;
 	public void paintComponent(Graphics g) {
 
 		super.paintComponent(g);
@@ -112,6 +114,16 @@ public class Viewer extends JPanel implements Observer {
 			drawBoss(boss,g);
 		}
 
+		if(showBlood)
+		{
+			showBloodTime++;
+			drawBlood(model.getWrongKillPos(),g);
+			if(showBloodTime>=6)
+			{
+				showBlood=false;
+				showBloodTime=0;
+			}
+		}
 		if(showTips)
 		{
 			if(model.getHitEnemy()!=null) {
@@ -233,6 +245,20 @@ public class Viewer extends JPanel implements Observer {
 		try {
 			Image myImage = ImageIO.read(TextureToLoad);
 			g.drawImage(myImage, 0,0,gameUtil.getWindowWidth() , gameUtil.getWindowHeight(), null);
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void drawBlood(Point3f pos, Graphics g)
+	{
+		File TextureToLoad = new File(gameUtil.getPath("blood"));
+		//should work okay on OSX and Linux but check if you have issues depending your eclipse install or if your running this without an IDE
+		try {
+			Image myImage = ImageIO.read(TextureToLoad);
+			g.drawImage(myImage, (int)pos.getX()-64,(int)pos.getY()-64,100 , 100, null);
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -375,6 +401,7 @@ public class Viewer extends JPanel implements Observer {
 			case CLOSE_TIP -> showTips=false;
 			case HIT_BOSS -> showBossTips=true;
 			case GO_MENU -> Reset();
+			case WRONG_KILL -> showBlood=true;
 		}
 	}
 
@@ -393,6 +420,7 @@ public class Viewer extends JPanel implements Observer {
 	private boolean showTips;
 	private boolean showGameEnd;
 	private boolean showBossTips;
+	private boolean showBlood;
 	@Override
 	public void setSubject(Subject sub) {
 		subject = model;
