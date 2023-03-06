@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
 public class GameUtil {
 	
 	private static final GameUtil instance = new GameUtil();

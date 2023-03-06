@@ -43,7 +43,8 @@ public class Player extends GameObject {
 
     void setAttackValue()
     {
-        attackValue = 1.0f + (playerScore%500)*0.1f;
+        attackValue = 1.0f + (playerScore/350)*0.1f;
+        System.out.println("Player attack value : " + attackValue);
     }
 
     public float getAttackValue()

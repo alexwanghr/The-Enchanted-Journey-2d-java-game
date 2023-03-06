@@ -61,6 +61,7 @@ public class Controller implements KeyListener {
 	@Override
 	public void keyPressed(KeyEvent e) 
 	{
+		System.out.println("CONTROLLER-----------------Pressed "+e.getKeyCode());
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_UP: setKeyUpPressed(true);break;
 			case KeyEvent.VK_DOWN:setKeyDownPressed(true);break;
@@ -76,13 +77,12 @@ public class Controller implements KeyListener {
 			default:break;
 		}
 		
-	 // You can implement to keep moving while pressing the key here . 
-		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) 
 	{
+		System.out.println("CONTROLLER-----------------Released "+e.getKeyCode());
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_UP: setKeyUpPressed(false);break;
 			case KeyEvent.VK_DOWN:setKeyDownPressed(false);break;
@@ -104,7 +104,6 @@ public class Controller implements KeyListener {
 	}
 
 	public void setKeyEscPressed(boolean keyEscPressed) {
-		 if(keyEscPressed)System.out.println("press esc");
 		 KeyEscPressed = keyEscPressed;
 	}
 

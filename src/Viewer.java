@@ -44,6 +44,11 @@ SOFTWARE.
 Observer Design Pattern in Java
 https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 */
+
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
 public class Viewer extends JPanel implements Observer {
 	private long CurrentAnimationTime= 0;
 	private static Model model;
@@ -349,7 +354,7 @@ public class Viewer extends JPanel implements Observer {
 			Image myImage = ImageIO.read(file);
 			g.drawImage(myImage, 0, 0, gameUtil.getWindowWidth(), gameUtil.getWindowHeight(), null);
 			g.drawString(line,60,350);
-            g.drawString("press Space to continue",230,430);
+            g.drawString("press SPACE to continue",230,430);
 		} catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -392,7 +397,7 @@ public class Viewer extends JPanel implements Observer {
 		}
 		g.drawString("Player 1 Score =  "+ model.getScore()[0],240,320);
 		g.drawString("Player 2 Score =  "+ model.getScore()[1],240,340);
-		g.drawString("Press Alt to continue",240,430);
+		g.drawString("press ALT to continue",240,430);
 	}
 
 	private void drawHistory(ArrayList<HistoryScore> historyList, Graphics g)
@@ -412,7 +417,7 @@ public class Viewer extends JPanel implements Observer {
 		{
 			g.drawString(historyList.get(i).displayString(i+1),100,30*(i+1));
 		}
-		g.drawString("Press ESC to continue",240,430);
+		g.drawString("press ENTER to menu",240,430);
 	}
 
 

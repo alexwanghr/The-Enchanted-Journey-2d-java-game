@@ -5,6 +5,10 @@ import util.Point3f;
 import java.io.*;
 import java.util.ArrayList;
 
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
 public class Save {
 
     Player playerOne;

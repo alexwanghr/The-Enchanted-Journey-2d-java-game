@@ -1,13 +1,15 @@
 package map;
-
 import util.GameUtil;
 import util.ObjectTag;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
 public class Map {
     public int [][] map=null;
     private GameUtil pathutil = GameUtil.getInstance();

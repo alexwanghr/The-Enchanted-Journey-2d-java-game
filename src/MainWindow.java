@@ -46,6 +46,10 @@ Observer Design Pattern in Java
 https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 */
 
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
 
 public class MainWindow implements Observer {
 	private Subject subject;
@@ -182,6 +186,7 @@ public class MainWindow implements Observer {
 		MenuLabel.setVisible(true);
 		GameOverLabel.setVisible(false);
 		frame.setVisible(true);
+		SetLevelButton();
 		setBtnStatus();
 		setBtnVisible(true);
 		StopMusic();
@@ -327,7 +332,6 @@ public class MainWindow implements Observer {
 
 	private History history;
 	void HistoryBtnOnClick() throws IOException {
-		history = new History();
 		model.showHistory(history.getHistoryList());
 		MenuLabel.setVisible(false);
 		GameOverLabel.setVisible(false);

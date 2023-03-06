@@ -41,6 +41,11 @@ Observer Design Pattern in Java
 https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 */
 
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
+
 public class Model implements Subject {
 	 private Save save;
 	 private int level=1;
@@ -90,7 +95,7 @@ public class Model implements Subject {
 		hitBossStop=false;
 		gameWinStop=false;
 		showHistoryRank=false;
-
+		CurrentAnimationTime=0;
 		PlayerOne = save.getPlayerOne();
 		PlayerTwo = save.getPlayerTwo();
 		PlayerList.add(PlayerOne);
@@ -146,8 +151,9 @@ public class Model implements Subject {
 	public void gamelogic() throws Exception {
 		if(showHistoryRank)
 		{
-			if(Controller.getInstance().isKeyEscPressed())
+			if(Controller.getInstance().isKeyEnterPressed())
 			{
+				Controller.getInstance().setKeyEnterPressed(false);
 				postMessage(EventType.GO_MENU);
 			}
 			return;
@@ -179,7 +185,7 @@ public class Model implements Subject {
 		if(hitBossStop)
 		{
 			CurrentAnimationTime++;
-			if(CurrentAnimationTime>10) {
+			if(CurrentAnimationTime>15) {
 				if (Controller.getInstance().isKeySpacePressed()) {
 					if (boss.CheckHasNextLine()) {
 						CurrentAnimationTime=0;
@@ -372,6 +378,7 @@ public class Model implements Subject {
 		PlayMusic("hitgate");
 		level+=1;
 		save.SaveGame(this);
+		System.out.println("MODEL -----------------HIT GATE");
 		postMessage(EventType.GO_MENU);
 	}
 
@@ -389,7 +396,9 @@ public class Model implements Subject {
 		}
 		PlayMusic("hitgate");
 		save.NewGameSave();
+		level=1;
 		hitBossStop =true;
+		System.out.println("MODEL -----------------HIT BOSS");
 		postMessage(EventType.HIT_BOSS);
 	}
 

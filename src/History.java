@@ -1,17 +1,14 @@
-import object.Player;
 import util.GameUtil;
-import util.Point3f;
-
-import javax.swing.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
-
 import java.io.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+/**
+ * @author huirong wang
+ * 2023.3 assignment for COMP30540 Game Development
+ */
 class HistoryScore
 {
     public int score;
