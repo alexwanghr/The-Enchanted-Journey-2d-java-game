@@ -49,7 +49,7 @@ https://www.digitalocean.com/community/tutorials/observer-design-pattern-in-java
 public class Model implements Subject {
 	 private Save save;
 	 private int level=1;
-	 private float moveSpeed = 1.0f;
+	 private float moveSpeed = 0.9f;
 	 private Player PlayerOne;
 	 private Player PlayerTwo;
 	 private GameUtil gameUtil = GameUtil.getInstance();

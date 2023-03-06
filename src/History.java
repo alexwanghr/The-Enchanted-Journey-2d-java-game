@@ -31,7 +31,7 @@ class HistoryScore
     }
 
     public String displayString(int rank){
-        return String.format("Rank%d Score %d Achieve Time %s",rank, score,time);
+        return String.format("Rank%d     Score %d Achieve Time %s",rank, score,time);
     }
 }
 public class History {
