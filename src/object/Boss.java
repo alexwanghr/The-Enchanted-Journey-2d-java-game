@@ -18,7 +18,7 @@ public class Boss extends GameObject {
         this.width=280;
         this.height=240;
         this.centre =centre;
-        this.life=3;
+        this.life=15;
         this.tag = ObjectTag.boss;
         this.punishscore = 100;
         this.textureLocation = pathutil.getPath("boss");
