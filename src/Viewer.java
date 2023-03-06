@@ -369,7 +369,8 @@ public class Viewer extends JPanel implements Observer {
 			int animationNumber = (int)(CurrentAnimationTime%30)/10;
 			g.drawImage(princessImg, 280,120, 328, 184, animationNumber*48,
 					0, (animationNumber+1)*48, 64, null);
-			g.drawString(boss.getLine(),60,350);
+			//g.drawString(boss.getLine(),60,350);
+			g.drawString(bossline,60,350);
 			g.drawString("Press Space to continue",230,430);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -425,11 +426,18 @@ public class Viewer extends JPanel implements Observer {
 			case GAME_WIN -> GameWin();
 			case SHOW_TIP -> showTips=true;
 			case CLOSE_TIP -> showTips=false;
-			case HIT_BOSS -> showBossTips=true;
+			case HIT_BOSS -> hitBoss();
 			case GO_MENU -> Reset();
 			case WRONG_KILL -> showBlood=true;
 			case SHOW_HISTORY -> showHistory=true;
+			case SHOW_NEXTLINE -> bossline = model.getBoss().getLine();
 		}
+	}
+
+	void hitBoss()
+	{
+		showBossTips=true;
+		bossline = model.getBoss().getLine();
 	}
 
 	void GameWin()
@@ -445,6 +453,7 @@ public class Viewer extends JPanel implements Observer {
 		showHistory=false;
 	}
 
+	private String bossline;
 	private boolean showTips;
 	private boolean showGameEnd;
 	private boolean showBossTips;

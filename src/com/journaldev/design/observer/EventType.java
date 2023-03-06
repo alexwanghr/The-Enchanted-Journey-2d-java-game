@@ -10,6 +10,7 @@ public enum EventType {
     GAME_WIN,
     WRONG_KILL,
     SHOW_HISTORY,
+    SHOW_NEXTLINE,
 
 
 }

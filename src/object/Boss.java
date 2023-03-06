@@ -22,6 +22,7 @@ public class Boss extends GameObject {
         this.tag = ObjectTag.boss;
         this.punishscore = 100;
         this.textureLocation = pathutil.getPath("boss");
+        this.currIndex=-1;
         ReadBossLine();
     }
 
@@ -42,18 +43,13 @@ public class Boss extends GameObject {
         br.close();
     }
 
-    public void showNextLine()
-    {
-        currIndex++;
-        System.out.println("show boss line "+ currIndex);
-    }
-
     public boolean CheckHasNextLine()
     {
         return currIndex<stringList.size()-1;
     }
     public String getLine()
     {
+        currIndex++;
         return this.stringList.get(currIndex);
     }
 

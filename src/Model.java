@@ -139,6 +139,8 @@ public class Model implements Subject {
 			}
 		}
 	}
+
+	private long CurrentAnimationTime= 0;
 	
 	// This is the heart of the game , where the model takes in all the inputs ,decides the outcomes and then changes the model accordingly. 
 	public void gamelogic() throws Exception {
@@ -176,16 +178,16 @@ public class Model implements Subject {
 
 		if(hitBossStop)
 		{
-			if(Controller.getInstance().isKeySpacePressed())
-			{
-				System.out.println("hitBossStop press space");
-				if(boss.CheckHasNextLine()) {
-					boss.showNextLine();
-				}
-				else
-				{
-					gameWinStop=true;
-					postMessage(EventType.GAME_WIN);
+			CurrentAnimationTime++;
+			if(CurrentAnimationTime>10) {
+				if (Controller.getInstance().isKeySpacePressed()) {
+					if (boss.CheckHasNextLine()) {
+						CurrentAnimationTime=0;
+						postMessage(EventType.SHOW_NEXTLINE);
+					} else {
+						gameWinStop = true;
+						postMessage(EventType.GAME_WIN);
+					}
 				}
 			}
 		}
